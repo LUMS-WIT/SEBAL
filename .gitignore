@@ -1,7 +1,11 @@
 datasets/
 shapefiles/
+
+
+
 *.bkp
 *.btmp
+*.$
 *.rar
 *.zip
 *.xlsx
