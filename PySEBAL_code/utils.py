@@ -749,7 +749,7 @@ def get_meteo(indir, outdir, satoverpass, param, quiet = True):
             param_ =  Calc(A= masked, outfile='temp1', calc = "A/100", quiet= quiet)
         
         elif param == 'Tair':
-            param_ =  Calc(A= masked, outfile='temp2', calc = "A-257.15", quiet= quiet)
+            param_ =  Calc(A= masked, outfile='temp2', calc = "A-273.15", quiet= quiet)
         
         elif param == 'Rh':
             # using temp dir since it contains generated masked files
