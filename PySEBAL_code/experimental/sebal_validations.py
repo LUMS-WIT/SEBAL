@@ -135,7 +135,7 @@ class SoilMoistureData:
                     return timestamps, soil_moistures
         return None, None  # Return None if no data is found
 
-    def plot_data(self, gpi=None):
+    def plot_data_gpi(self, gpi=None):
         # Plot data only for the specified GPI
         if gpi:
             found = False
@@ -256,6 +256,163 @@ for data in data_within_extent:
 
 # ---------------------------------------------------------------------------------------------------------
 
+class SebalSoilMoistureData:
+    """
+    Class for reading and processing raster data from a specified folder.
+    Attributes:
+        folder_path (str): Path to the folder containing raster files.
+    """
+
+    def __init__(self, folder_path):
+        """
+        Initializes the SebalData object.
+        Args:
+            folder_path (str): Path to the folder containing raster files.
+
+        Raises:
+            ValueError: If the folder path is invalid or does not exist.
+        """
+
+        if not os.path.exists(folder_path):
+            raise ValueError(f"Invalid folder path: {folder_path}")
+
+        self.folder_path = folder_path
+        self.raster_dates = None 
+        self.raster_values= None
+        self.pattern = 'Top_soil_moisture'
+        
+    def read_raster_value(self, file_path=None, lat=None, lon=None):
+        """
+        Reads the value at a specific latitude and longitude from a single raster file
+        matching the given pattern within the folder.
+
+        Args:
+            lat (float): Latitude coordinate.
+            lon (float): Longitude coordinate.
+            pattern (str, optional): Pattern to match filenames (default: "Top_soil_moisture").
+
+        Returns:
+            float: Raster value at the specified coordinates, or np.nan if missing or out of bounds
+        """
+            # Open the TIF file
+        dataset = gdal.Open(file_path)
+        if not dataset:
+            raise ValueError("File could not be opened.")
+        
+        # Fetch the geographic coordinate system and projection from the dataset
+        old_cs = osr.SpatialReference()
+        old_cs.ImportFromWkt(dataset.GetProjectionRef())
+        
+        # Create a new geographic coordinate system (WGS84)
+        wgs84 = osr.SpatialReference()
+        wgs84.ImportFromEPSG(4326)
+        
+        # Create a coordinate transformation from WGS84 to the dataset's projection
+        transform = osr.CoordinateTransformation(wgs84, old_cs)
+        
+        # Transform the lat, lon coordinates to the dataset's projection
+        x, y, z = transform.TransformPoint(lon, lat)
+        
+        # Get the affine transformation coefficients
+        gt = dataset.GetGeoTransform()
+        
+        # Convert from geographic coordinates to raster pixel coordinates
+        pixel_x = int((x - gt[0]) / gt[1])
+        pixel_y = int((y - gt[3]) / gt[5])
+
+        # Check if the pixel coordinates are within the raster bounds
+        if (pixel_x < 0 or pixel_x >= dataset.RasterXSize or
+            pixel_y < 0 or pixel_y >= dataset.RasterYSize):
+            print(f"Requested pixel is out of bounds: ({pixel_x}, {pixel_y})")
+
+        # Read the data value at the raster pixel coordinates
+        band = dataset.GetRasterBand(1)
+        value = band.ReadAsArray(pixel_x, pixel_y, 1, 1)
+        
+        # Close the dataset
+        dataset = None
+        
+        # Handle missing data
+        if value is None or np.isnan(value).all():
+            return np.nan
+        else:
+            return value[0, 0]
+
+    def read_data(self, lat=None, lon=None):
+        """
+        Reads values from all raster files matching the given pattern
+        within the folder, at the specified latitude and longitude.
+
+        Args:
+            lat (float): Latitude coordinate.
+            lon (float): Longitude coordinate.
+
+        Returns:
+            tuple(list, list) 
+                - List of datetime objects (dates)
+                - List of corresponding raster values (sorted by date)
+        """
+        values = []
+        dates = []
+
+        # Walk through the directory, including subdirectories
+        for root, dirs, files in os.walk(self.folder_path):    
+            # Iterate through all files in the folder
+            for filename in files:
+                if filename.endswith(".tif") and self.pattern in filename:
+                    # Construct the full file path
+                    file_path = os.path.join(root, filename)
+                    # Extract date from filename
+                    parts = filename.split('_')
+                    date_str = f"{parts[-4]}_{parts[-3]}_{parts[-2]}"  # Assumes date is in the format {year}_{month}_{day}
+                    date = datetime.datetime.strptime(date_str, '%Y_%m_%d')
+                    # Read the raster value
+                    value = self.read_raster_value(file_path, lat, lon)
+                    values.append(value)
+                    dates.append(date)
+        
+        # Combine dates and values into a list of tuples and sort by date
+        _values = list(zip(dates, values))
+        _values.sort(key=lambda x: x[0])  # Sorting by dates
+        
+        # Unpack dates and values from the sorted list
+        self.raster_dates, self.raster_values = zip(*_values)
+    
+    def get_data(self):
+        """
+        return the date and value data for the user
+        """
+        if self.raster_dates:
+            if self.raster_values:
+
+                return self.raster_dates, self.raster_values
+        else:
+            print('Please run read_data method first')
+            
+
+    def plot_data(self):
+        
+        if self.raster_dates:
+            # Plotting the results of raster
+            plt.figure(figsize=(10, 5))
+            #plt.plot(dates, values, 'o')
+            plt.plot(self.raster_dates, self.raster_values, marker='x', linestyle='--', color='r', label='Sebal Soil Moisture')
+            plt.title(f'{self.pattern} Over Time')
+            plt.xlabel('Date')
+            plt.ylabel('Soil Moisture Value (m3/m3)')
+
+            # Configure date format on x-axis
+            # Set the x-ticks to match the dates of the data points
+            plt.gca().set_xticks(self.raster_dates)
+            plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+            plt.gcf().autofmt_xdate(rotation=90)  # Auto formats the x-axis labels to fit them in the plot area
+            plt.gca().tick_params(axis='x', labelsize=8)  # Setting the font size to 8
+
+            plt.legend()
+            plt.tight_layout()
+            plt.show()
+        else:
+            print('Please run read_data method first')
 
 def read_raster_value(file_path, lat, lon):
     # Open the TIF file
@@ -329,6 +486,8 @@ def read_raster_folder(folder_path, lat, lon, pattern = "Top_soil_moisture"):
     # Unpack dates and values from the sorted list
     sorted_dates, sorted_values = zip(*raster_values)
     return sorted_dates, sorted_values
+
+
 
 '''
 # Example usage
