@@ -1,0 +1,48 @@
+import sys
+sys.path.append('F:\\SEBAL\\PySEBAL_code')
+
+import metrics
+import openpyxl
+import numpy as np
+
+
+# Define the path to your Excel file
+xlsx_file_path = r'F:\SEBAL\datasets\validation\LBDC_validations\validation_points\149039\sebal_149039_witgpi_2021052_lat_30.892122_lon_73.374222.xlsx'
+
+def extract_sm_data(xlsx_file_path,ref=1, test=2):
+    # Load the workbook and select the active sheet
+    workbook = openpyxl.load_workbook(filename=xlsx_file_path)
+    sheet = workbook.active  # or workbook['SheetName'] if you know the sheet name
+
+    # Initialize lists to store 'ref_sm' and 'test_sm' values
+    test_sm_list = []   # x
+    ref_sm_list = []    # y
+
+    # Assuming the first row contains headers and data starts from the Reference row
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+        # Append the values from 'ref_sm' and 'test_sm' columns to their respective lists
+        ref_sm_list.append(row[1])
+        test_sm_list.append(row[2])
+
+    # Convert lists to numpy arrays before returning
+    ref_sm_array = np.array(ref_sm_list)
+    test_sm_array = np.array(test_sm_list)
+
+    return ref_sm_array, test_sm_array
+
+
+wit_sm, sebal_sm = extract_sm_data(xlsx_file_path)
+
+print(wit_sm, sebal_sm)
+
+
+# x, y
+mse, mse_corr, mse_bias, mse_var = metrics.mse(sebal_sm, wit_sm)
+p_rho = metrics.pearson_r(sebal_sm, wit_sm)
+s_rho = metrics.spearman_r(sebal_sm, wit_sm)
+ubrmsd = metrics.ubrmsd(sebal_sm, wit_sm)
+
+print('mse:', mse)
+print('pearson:', p_rho)
+print('spearmans rho:', s_rho)
+print('UbRMSD:', ubrmsd)
