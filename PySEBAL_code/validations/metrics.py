@@ -476,3 +476,92 @@ def spearman_r_ci(x, y, r, alpha=0.05):
     cl = v - z * np.sqrt(1 + r ** 2 / 2) / np.sqrt(n - 3)
     cu = v + z * np.sqrt(1 + r ** 2 / 2) / np.sqrt(n - 3)
     return np.tanh(cl), np.tanh(cu)
+
+
+def calculate_iqr(data):
+    """
+    Calculate the Interquartile Range (IQR) of the given data.
+
+    Parameters
+    ----------
+    data : array-like
+        Input data from which to calculate the IQR.
+
+    Returns
+    -------
+    float
+        The interquartile range of the data.
+    """
+    y = [x for x in data if not np.isnan(x)]
+    return stats.iqr(y)
+
+def fisher_z(r):
+    """
+    Convert an array of Pearson correlation coefficients to Fisher z-values.
+
+    Parameters
+    ----------
+    r : array-like
+        List or array of Pearson correlation coefficients. Values should be between -1 and 1, exclusive.
+
+    Returns
+    -------
+    array-like
+        The Fisher z-transformed values of the input correlation coefficients.
+
+    Notes
+    -----
+    This function adjusts correlation coefficients exactly equal to 1 or -1 to 0.999999 and -0.999999 respectively
+    to avoid mathematical errors in transformations.
+    """
+    # r = np.clip(r, -0.999999, 0.999999)
+    # Adjust values exactly equal to 1.0 or -1.0
+    r = [0.999999 if x == 1.0 else -0.999999 if x == -1.0 else x for x in r]
+    return np.arctanh(r)
+
+def inverse_fisher_z(z):
+    """
+    Convert an array of Fisher z-values back to Pearson correlation coefficients.
+
+    Parameters
+    ----------
+    z : array-like
+        List or array of Fisher z-values.
+
+    Returns
+    -------
+    array-like
+        The Pearson correlation coefficients corresponding to the input Fisher z-values.
+    """
+    return np.tanh(z)
+
+def mean_r(correlations):
+    """
+    Calculate the mean of an array of Pearson correlation coefficients using Fisher z transformation.
+
+    Parameters
+    ----------
+    correlations : array-like
+        List or array of Pearson correlation coefficients.
+
+    Returns
+    -------
+    float
+        The mean Pearson correlation coefficient.
+
+    Notes
+    -----
+    This function uses the Fisher z transformation to compute the mean of the correlation coefficients
+    to improve the accuracy of the mean calculation for normally distributed values.
+    """
+
+    # Convert Pearson r values to Fisher z values
+    z_values = fisher_z(np.array(correlations))
+    
+    # Calculate the mean of the Fisher z values
+    mean_z = np.nanmean(z_values)
+    
+    # Convert the mean Fisher z value back to a Pearson r value
+    mean_r = inverse_fisher_z(mean_z)
+    
+    return mean_r
