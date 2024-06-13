@@ -9,9 +9,9 @@ import pandas as pd
 # Define the path to your Excel file
 path_row = '150039'
 temporal_win = '0'
-combine_validations = True
 rescaled = True
-plotting = True
+combine_validations = True
+plotting = False
 
 if rescaled:
     master_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\validation_points_rescaled' 
@@ -115,7 +115,7 @@ def validations(folder_path):
 
     return metrics_dict, observations
 
-def validations_gpi(folder_path):
+def validations_gpi(folder_path, threshold= -0.5):
     
     # Initialize a dictionary to store lists of results for each metric
     metrics_dict = {
@@ -148,7 +148,6 @@ def validations_gpi(folder_path):
         gpi = re.search(pattern, file).group(1)
         # x and y must have length at least 2. otherwise p_rho wont work
         if len(wit_sm) > 1:
-            observations += len(wit_sm)
 
             bias = metrics.bias(sebal_sm, wit_sm)
             mse, mse_corr, mse_bias, mse_var = metrics.mse(sebal_sm, wit_sm)
@@ -156,12 +155,25 @@ def validations_gpi(folder_path):
             p_rho = metrics.pearson_r(sebal_sm, wit_sm)
             s_rho = metrics.spearman_r(sebal_sm, wit_sm)
 
-            metrics_dict['gpi'].append(gpi)
-            metrics_dict['bias'].append(bias)
-            metrics_dict['mse'].append(mse)
-            metrics_dict['ubrmsd'].append(ubrmsd)
-            metrics_dict['p_rho'].append(p_rho)
-            metrics_dict['s_rho'].append(s_rho)
+            # add a check to discard values with high negative corelation ( < 70%) and low points (<10)
+            # Append all points with correlation greater than -0.7
+            if p_rho >= threshold and s_rho >= threshold:
+                observations += len(wit_sm)
+                metrics_dict['gpi'].append(gpi)
+                metrics_dict['bias'].append(bias)
+                metrics_dict['mse'].append(mse)
+                metrics_dict['ubrmsd'].append(ubrmsd)
+                metrics_dict['p_rho'].append(p_rho)
+                metrics_dict['s_rho'].append(s_rho)
+            # Check for high negative correlation (< -0.7) with sufficient data points (> 10)
+            elif (p_rho < -0.7 or s_rho < threshold) and len(wit_sm) > 10:
+                observations += len(wit_sm)
+                metrics_dict['gpi'].append(gpi)
+                metrics_dict['bias'].append(bias)
+                metrics_dict['mse'].append(mse)
+                metrics_dict['ubrmsd'].append(ubrmsd)
+                metrics_dict['p_rho'].append(p_rho)
+                metrics_dict['s_rho'].append(s_rho)
 
     
     return metrics_dict, observations
@@ -275,4 +287,4 @@ else:
 # print(metrics_dict_)
 
 
-plot_box_and_whiskers(metrics_dict, filename= plot_file_name, save=plotting)
+plot_box_and_whiskers(metrics_dict, filename= plot_file_name, save=True)
