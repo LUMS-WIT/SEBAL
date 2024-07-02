@@ -16,8 +16,8 @@ from util import *
 
 row_path = '150039'
 save_plot = False
-rescaling = True
-temporal_win = 1   # days for temporal matching
+rescaling = False
+temporal_win = 0   # days for temporal matching
 pattern = "Top_soil_moisture"
 
 if row_path == '149039':

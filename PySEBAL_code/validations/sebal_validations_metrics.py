@@ -9,26 +9,26 @@ import pandas as pd
 # Define the path to your Excel file
 path_row = '150039'
 temporal_win = '0'
-rescaled = True
+rescaled = False
 combine_validations = True
 plotting = False
 
 if rescaled:
     master_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\validation_points_rescaled' 
     data_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\validation_points_rescaled\{path_row}_{temporal_win}'
-    output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\validations_{path_row}_tw_{temporal_win}_rescaled.xlsx'
-    combine_output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\validations_tw_{temporal_win}_rescaled.xlsx'
+    output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\validations_{path_row}_tw_{temporal_win}_rescaled.xlsx'
+    combine_output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\validations_tw_{temporal_win}_rescaled.xlsx'
 
-    plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\{path_row}_tw_{temporal_win}_rescaled.png'
-    combine_plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\tw_{temporal_win}_rescaled.png'
+    plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\{path_row}_tw_{temporal_win}_rescaled.png'
+    combine_plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\tw_{temporal_win}_rescaled.png'
 else:
     master_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\validation_points' 
     data_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\validation_points\{path_row}_{temporal_win}'
-    output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\validations_{path_row}_tw_{temporal_win}.xlsx'
-    combine_output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\validations_tw_{temporal_win}.xlsx'
+    output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\validations_{path_row}_tw_{temporal_win}.xlsx'
+    combine_output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\validations_tw_{temporal_win}.xlsx'
 
-    plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\{path_row}_tw_{temporal_win}.png'
-    combine_plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\tw_{temporal_win}.png'
+    plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\{path_row}_tw_{temporal_win}.png'
+    combine_plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\tw_{temporal_win}.png'
 
 metadata_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\metadata_{path_row}_tw_{temporal_win}.xlsx'
 xlsx_file_path = r'F:\SEBAL\datasets\validation\LBDC_validations\validation_points\149039_1\sebal_149039_witgpi_2021073_lat_30.898787_lon_73.4677055.xlsx'
@@ -287,4 +287,4 @@ else:
 # print(metrics_dict_)
 
 
-plot_box_and_whiskers(metrics_dict, filename= plot_file_name, save=True)
+plot_box_and_whiskers(metrics_dict, filename= plot_file_name, save=plotting)
