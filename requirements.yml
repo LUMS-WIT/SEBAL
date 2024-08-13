@@ -152,4 +152,3 @@ dependencies:
       - landsatxplore==0.15.0
       - shapely==1.8.5.post1
       - tqdm==4.66.1
-prefix: C:\Users\ham95\.conda\envs\sebal
