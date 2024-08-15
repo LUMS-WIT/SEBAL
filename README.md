@@ -9,6 +9,8 @@ The primary goal of this project was initially to execute pysebal. For this purp
 - Validation of sebal over Indus Basin / LBDC : awaiting closure
 - SWF experiment : under progress
 
+> [!NOTE]
+> Please refer to PySEBAL documentation before proceeding further. The documentation is available at this [link](https://pysebal-doc.readthedocs.io/en/version3.7.3/index.html).
 
 ## Installation and Setup
 To run the models and scripts in this repository, ensure your system meets the following requirements:
@@ -133,7 +135,7 @@ The following steps would be executed to run pySEBAL model.
    python gldas_download.py
    ```
 
-   Incase of requirement for downloading specific dated meteo data e.g. failed validation. Make following changes in the *config.py* file to include mention the desired dates. Followed by re-running the script. 
+   Incase of requirement for downloading specific dated meteo data e.g. failed validation. Make following changes in the *config.py* file to include the desired dates. Followed by re-running the script. 
    ```bash
    #------------------------------------------
    #------------- Meteo Files ----------------
@@ -143,6 +145,12 @@ The following steps would be executed to run pySEBAL model.
    METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf\\'
    MISSING_DATES = ['20230508', '20230516', '20230524']
    ```
+3. **Processsing GLDAS Meteorological Data**
+
+   The purpose of pre-processing is to convert the downloaded meteorological data from GLDAS into desired units and parameters as mentioned in PySEBAL documentation. 
+
+> [!NOTE]
+> The over pass time for landsat 8/9 over Pakistan is around 0545 hrs (GMT) with corresponding meteo data of time 0600. You can verify the satellite overpass dates from [link](https://landsat.usgs.gov/landsat_acq) and overpass time form [link](https://www.ssec.wisc.edu/datacenter/polar_orbit_tracks/ )
 
 ## Contributing
 

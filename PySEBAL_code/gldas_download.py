@@ -72,7 +72,7 @@ def validate():
     print('------- Validating GLDAS Meteo ---------')
     print('----------------------------------------')
 
-    validate_gldas(METEO_INDIR, count=8, size= 145)
+    validate_gldas(METEO_INDIR, LANDSAT_INDIR, count=8, size= 145)
 
 
 if __name__ == "__main__":

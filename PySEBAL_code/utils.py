@@ -181,7 +181,7 @@ def download_gldas(date, outdir):
     
     return
 
-def validate_gldas(indir, count = 8, size = 145):
+def validate_gldas(indir, landsat_indir, count = 8, size = 145):
     """
     counts the number of downloaded meteo files in each directory and 
     checks the size of each directory
@@ -200,6 +200,34 @@ def validate_gldas(indir, count = 8, size = 145):
                 file_path = os.path.join(dirpath, filename)
                 total_size += os.path.getsize(file_path)
         return total_size
+
+    # Get all possible dates from landsat
+    def get_dates_landsat(landsat_indir):
+        files = os.listdir(landsat_indir)
+        dates = []
+        for tarf in files:
+
+            # Specify the path to the tar archive file you want to untar
+            tar_filename_path = tarf
+            tar_filename = tar_filename_path.split('\\')[-1]
+            date = tar_filename.split("_")[3]
+            dates.append(date)    
+
+        return len(files), dates
+
+    # get all downloaded dates
+    def get_dates(indir):
+        files = os.listdir(indir)
+        dates = []
+        for tarf in files:
+
+            # Specify the path to the tar archive file you want to untar
+            tar_filename_path = tarf
+            date = tar_filename_path.split('\\')[-1]
+            # date = tar_filename.split("_")[3]
+            dates.append(date)    
+
+        return len(files), dates        
 
     # Check if the specified path is a directory
     if os.path.isdir(indir):
@@ -225,7 +253,20 @@ def validate_gldas(indir, count = 8, size = 145):
         print(f"The specified path '{indir}' is not a directory.")
     
     if i ==1:
-        print(" \n----- GLDAS Download : All SAT -----")
+        # Check if all dates downloaded
+        l_count, l_dates = get_dates_landsat(landsat_indir)
+        m_count, m_dates = get_dates(indir)
+
+        if l_count == m_count:
+            print(f" \n----- GLDAS Download validated for {l_count} Dates: All SAT -----")
+        else:
+            set_A = set(l_dates)
+            set_B = set(m_dates)
+
+            # Find values that are not common between the two sets
+            not_common = list(set_A.symmetric_difference(set_B))
+
+            print("Complete Data from the following dates is missing:", not_common)        
     return
 
 '''
