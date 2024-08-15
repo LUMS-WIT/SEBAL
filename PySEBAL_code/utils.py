@@ -93,7 +93,29 @@ def validate_landsat(indir, count = 24, size = 1010):
     
     if i ==1:
         print(" \n----- Landsat Download : All SAT -----")
-    return
+        return 'sat'
+    else:
+        return 'unsat'
+
+def remove_tar(indir):
+    """
+    Bulk delete .tar files
+
+    Parameters
+    ----------
+    indir : str
+        path to input directory containing .tar files
+    """
+    
+    path = os.path.join(indir, "*.tar*")
+    files = glob.glob(path)
+    
+    for file in files:
+        try:
+            os.remove(file)
+            print(f"Deleted: {file}")
+        except Exception as e:
+            print(f"Error deleting {file}: {e}")
 
 '''
 ------------------------------------------------------------------
