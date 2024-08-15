@@ -11,14 +11,17 @@ shapefile_LBDC_149039 = r'D:\\Hamza\\SEBAL\\shapefiles\\LBDC\\149039\\ALPSMLC30_
 shapefile_LBDC_150039 = r'D:\\Hamza\\SEBAL\\shapefiles\\LBDC\\150039\\ALPSMLC30_LBDC_150039_sub_v3.shp'
 shapefile_mmm = 'D:\Hamza\SEBAL\shapefiles\Def_mmm\def_test_extent.shp'
 
-shapefile = shapefile_mmm
+shapefile_swf = 'D:\SEBAL\datasets\shapefiles\SWF\swf.shp'
+
+
+shapefile = shapefile_swf
 
 '''
 print('-----------------------------------------')
 print('------- Unziping Landsat8/9 Data --------')
 print('-----------------------------------------')
 
-indir_tar = "F:\SEBAL\datasets\landsat\LBDC_exp\\"
+indir_tar = "D:\SEBAL\datasets\landsat\swf\\"
 untar_bulk(indir_tar)
 '''
 '''
@@ -31,7 +34,7 @@ indir_landsat = "D:\\Hamza\\SEBAL\\datasets\\landsat\\LBDC_exp\\149039\\"
 validate_landsat(indir_landsat, count=24, size= 1010)
 '''
 
-'''
+
 #===============================================================================
 print('----------------------------------------')
 print('------- Downloading GLDAS Meteo --------')
@@ -47,7 +50,7 @@ print('----------------------------------------')
 # Note .netrc , .urs_cookies file in home dir and .dodrc in project dir
 
 
-meteo_bulk_download = False
+meteo_bulk_download = True
 outdir_gldas = "D:\\Hamza\\SEBAL\\datasets\\meteo\\def_mmm\\test\\"
 
 
@@ -118,9 +121,9 @@ print('------- Validating GLDAS Meteo ---------')
 print('----------------------------------------')
 
 validate_gldas(outdir_gldas, count=8, size= 145)
+
+
 '''
-
-
 #===============================================================================
 
 def meteo_processing (indir, outdir, shapefile, ncdate = "A20210609"):
@@ -206,7 +209,7 @@ else:
     meteo_processing (indir_meteo, outdir_meteo, shapefile, ncdate="A20210609")
 
 print('\n Meteorological Processing Execution time :', datetime.datetime.now() - startTime_meteo)
-
+'''
 #=============================================================================================================================
 #------------------------------------------
 #------- Filling the excel sheet ----------

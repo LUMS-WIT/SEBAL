@@ -29,7 +29,7 @@ To run the models and scripts in this repository, ensure your system meets the f
 
 3. **Test Run PySEBAL**
 
-   Once all the requirements have been satisfied, we can run PySEBAL code using the test data. The main code file is [Run_py3.py](SEBAL/PySEBAL_dev/SEBAL/Run_py3.py) and test data is located in [test_data](SEBAL/PySEBAL_dev/test_data) folder. If you cloned the repository in *D* drive then it should be *D:\SEBAL\PySEBAL_dev\test_data*. Now Open *Run_py3.py* in your code editor and ensure following:
+   Once all the requirements have been satisfied, we can run PySEBAL code using the test data. The main code file is [Run_py3.py](SEBAL/PySEBAL_dev/SEBAL/Run_py3.py) and test data is located in [test_data](SEBAL/PySEBAL_dev/test_data) folder. If you cloned the repository in *D:* drive then it should be *D:\SEBAL\PySEBAL_dev\test_data*. Now Open *Run_py3.py* in your code editor and ensure following:
    
    ```bash
    ##### USER INPUTS
@@ -37,17 +37,18 @@ To run the models and scripts in this repository, ensure your system meets the f
    ##### For Linux SET THE PATH TO INPUT EXCEL SHEET #####
    #inputExcel = r"/mnt/d/PySEBAL_dev/test_data/InputEXCEL_v3_3_7_LIN.xlsx"
    ##### For Windows SET THE PATH TO INPUT EXCEL SHEET #####
-   inputExcel = r"D:\SEBAL\PySEBAL_dev/test_data/InputEXCEL_v3_3_7_LIN.xlsx"
+   inputExcel = r"D:\SEBAL\PySEBAL_dev/test_data/InputEXCEL_v3_3_7_WIN.xlsx"
    st = 2 # starting row number
    en = 2 # ending row number
    ```  
    Once done execute the PySEBAL code:
    ```bash
-   # Ensure the conda environment is activated
+   # Ensure the conda environment i.e. *sebal* is activated
    python Run_py3.py
    ```  
 
    If successfully executed. There would be an *output* folder inside *D:\SEBAL\PySEBAL_dev\test_data*.
+
    > [!WARNING]
    > If PySEBAL_dev is not in *D:* drive, you need to update the paths in excel sheet for the dataset location.
 
