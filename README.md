@@ -90,6 +90,7 @@ To run the models and scripts in this repository, ensure your system meets the f
 The following steps would be executed to run pySEBAL model. 
 
 1. **Processing Landsat Data**
+
    Set the path of landsat folder in [config.py](PySEBAL_code/config.py) python file.
    ```bash
    #------------------------------------------
@@ -104,15 +105,17 @@ The following steps would be executed to run pySEBAL model.
    python landsat_processing.py
    ```
 2. **Downloading Meteorological Data**
+
    The meteorological data for ROI needs to be available for pySEBAL code. This includes the instantaneous and 24 hours average *Temperature*, *Relative Humidity*, *Windspeed* and *Downwards shortwave radiation*. The same can be downloaded form GLDAS NOAH2.5 3H[NASA Server](https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/) automatically through python script. Follow [these](https://disc.gsfc.nasa.gov/information/documents?title=Data%20Access) steps before executing the script.
 
-   - create an account [steps](https://wiki.earthdata.nasa.gov/display/EL/How+To+Register+For+an+EarthData+Login+Profile)
-   - authorize NASA GESDISC DATA ARCHIVE via your account [steps](https://disc.gsfc.nasa.gov/earthdata-login)
+   - create an account using these [steps](https://wiki.earthdata.nasa.gov/display/EL/How+To+Register+For+an+EarthData+Login+Profile)
+   - authorize NASA GESDISC DATA ARCHIVE via your account using these [steps](https://disc.gsfc.nasa.gov/earthdata-login)
    - verify  NASA GESDISC DATA ARCHIVE is in Accepted EULA
-   - create the pre-requiste file for authentications using [steps](https://disc.gsfc.nasa.gov/information/howto?title=How%20to%20Generate%20Earthdata%20Prerequisite%20Files)
+   - create the pre-requiste file for authentications using these [steps](https://disc.gsfc.nasa.gov/information/howto?title=How%20to%20Generate%20Earthdata%20Prerequisite%20Files)
 
 > [!Note]
-> You need to be signed in at Earthdata service at [link](https://urs.earthdata.nasa.gov/) before executing the code below. 
+> You need to be signed in at Earthdata service at [link](https://urs.earthdata.nasa.gov/) before executing the code below.
+
 > If still not downloading, try by placing .netrc , .urs_cookies file in home dir and .dodrc in project dir.
 
    Set the path of global variables in [config.py](PySEBAL_code/config.py) python file.
@@ -127,6 +130,7 @@ The following steps would be executed to run pySEBAL model.
    Execute [gldas_download.py](PySEBAL_code/gldas_download.py) Script.
    ```bash
    python gldas_download.py
+   ```
 
 ## Contributing
 
