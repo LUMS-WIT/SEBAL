@@ -16,18 +16,18 @@ To run the models and scripts in this repository, ensure your system meets the f
 ### Prerequisites
 - Python 3.8 or higher
 
-**1. Clone the Repository**
+1. **Clone the Repository**
    ```bash
    git clone https://github.com/LUMS-WIT/SEBAL.git
    cd SEBAL
 
-**2. Install Dependencies using conda**
+2. **Install Dependencies using conda**
    ```bash
    # CPU only
    conda env create -f requirements_cpu.yml
    conda activate sebal
 
-**3. Test Run PySEBAL**
+3. **Test Run PySEBAL**
    Once all the requirements have been satisfied, we can run PySEBAL code using the test data. The main code file is [Run_py3.py](SEBAL/PySEBAL_dev/SEBAL/Run_py3.py) and test data is located in [test_data](SEBAL/PySEBAL_dev/test_data) folder. If you cloned the repository in *D* drive then it should be *D:\SEBAL\PySEBAL_dev\test_data*. Now Open *Run_py3.py* in your code editor and ensure following:
    '''
    ##### USER INPUTS
