@@ -113,10 +113,11 @@ The following steps would be executed to run pySEBAL model.
    - verify  NASA GESDISC DATA ARCHIVE is in Accepted EULA
    - create the pre-requiste file for authentications using these [steps](https://disc.gsfc.nasa.gov/information/howto?title=How%20to%20Generate%20Earthdata%20Prerequisite%20Files)
 
-> [!Note]
-> You need to be signed in at Earthdata service at [link](https://urs.earthdata.nasa.gov/) before executing the code below.
+> [!WARNING]
+> You need to place .netrc with above created user login details, .urs_cookies (not compulsory) file in home dir and .dodrc (not compulsory) in project dir.
 
-> If still not downloading, try by placing .netrc , .urs_cookies file in home dir and .dodrc in project dir.
+> [!Note]
+> You (might) need to be signed in at Earthdata service at [link](https://urs.earthdata.nasa.gov/) before executing the code below.
 
    Set the path of global variables in [config.py](PySEBAL_code/config.py) python file.
    ```bash
@@ -130,6 +131,17 @@ The following steps would be executed to run pySEBAL model.
    Execute [gldas_download.py](PySEBAL_code/gldas_download.py) Script.
    ```bash
    python gldas_download.py
+   ```
+
+   Incase of requirement for downloading specific dated meteo data e.g. failed validation. Make following changes in the *config.py* file to include mention the desired dates. Followed by re-running the script. 
+   ```bash
+   #------------------------------------------
+   #------------- Meteo Files ----------------
+   #------------------------------------------
+
+   BULK_DOWNLOAD = False
+   METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf\\'
+   MISSING_DATES = ['20230508', '20230516', '20230524']
    ```
 
 ## Contributing
