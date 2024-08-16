@@ -13,9 +13,9 @@ startTime = datetime.now()
 ##### For Linux SET THE PATH TO INPUT EXCEL SHEET #####
 #inputExcel = r"/mnt/d/PySEBAL_dev/test_data/InputEXCEL_v3_3_7_LIN.xlsx"
 ##### For Windows SET THE PATH TO INPUT EXCEL SHEET #####
-inputExcel = r"F:\SEBAL\PySEBAL_dev\docs\InputEXCEL_def_test.xlsx"
+inputExcel = r"D:\SEBAL\PySEBAL_dev\docs\InputEXCEL_swf.xlsx"
 st = 2 # starting row number
-en = 4 # ending row number
+en = 13 # ending row number
 
 ####### USER INPUTS FINISH HERE
 

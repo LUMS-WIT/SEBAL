@@ -1045,7 +1045,7 @@ def write_to_excel(folder_paths, folder_names, base_output_path, base_meteo_path
     meteo_input_sheet = workbook.create_sheet(title='Meteo_Input')
 
     # Writing headers for Meteo_Input sheet
-    headers = ['Temp_inst', 'Temp_24', 'RH_inst', 'RH_24', 'Wind_inst', 'Wind_24', 'Rs_in_inst_cloud_free', 'Rs_24']
+    headers = ['Temp_inst', 'Temp_24', 'RH_inst', 'RH_24', 'Wind_inst', 'Wind_24', 'Rs_24', 'Rs_in_inst_cloud_free']
     for col, header in enumerate(headers, start=1):
         meteo_input_sheet.cell(row=1, column=col, value=header)
 
@@ -1087,8 +1087,9 @@ def write_to_excel(folder_paths, folder_names, base_output_path, base_meteo_path
             meteo_input_sheet.cell(row=index, column=4, value=rh_24_path)
             meteo_input_sheet.cell(row=index, column=5, value=wind_inst_path)
             meteo_input_sheet.cell(row=index, column=6, value=wind_24_path)
-            meteo_input_sheet.cell(row=index, column=7, value=rs_in_inst_path)
-            meteo_input_sheet.cell(row=index, column=8, value=rs_24_path)
+            meteo_input_sheet.cell(row=index, column=7, value=rs_24_path)
+            meteo_input_sheet.cell(row=index, column=8, value=rs_in_inst_path)
+            
 
     workbook.save(excel_file_path)
     print(f"Data has been written to {excel_file_path}")

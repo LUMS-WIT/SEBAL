@@ -95,10 +95,6 @@ The following steps would be executed to run pySEBAL model.
 
    Set the path of landsat folder in [config.py](PySEBAL_code/config.py) python file.
    ```bash
-   #------------------------------------------
-   #------------- Landsat 8/9 ----------------
-   #------------------------------------------
-
    landsat_swf = 'D:\SEBAL\datasets\landsat\swf\\'
    LANDSAT_INDIR = landsat_swf
    ``` 
@@ -117,10 +113,6 @@ The following steps would be executed to run pySEBAL model.
 
    Set the values for global variables in *Config.py* python file.
    ```bash
-   #------------------------------------------
-   #------------- Meteo Files ----------------
-   #------------------------------------------
-
    BULK_DOWNLOAD = True
    METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf\\'
    ```
@@ -131,10 +123,6 @@ The following steps would be executed to run pySEBAL model.
 
    Incase of requirement for downloading specific dated meteo data e.g. failed validation. Make following changes in the *config.py* file to include the desired dates. Followed by re-running the script. 
    ```bash
-   #------------------------------------------
-   #------------- Meteo Files ----------------
-   #------------------------------------------
-
    BULK_DOWNLOAD = False
    METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf\\'
    MISSING_DATES = ['20230508', '20230516', '20230524']
@@ -145,7 +133,10 @@ The following steps would be executed to run pySEBAL model.
 > [!Note]
 > You (might) need to be signed in at Earthdata service at [link](https://urs.earthdata.nasa.gov/) before executing the code below.
 
-3. **Processsing GLDAS Meteorological Data**
+3. **Processing of DEM**
+   DEM for the ROI would be required in the subsequent steps. It is recommended that the same processing should be carried out in QGIS. In case of manual processing i.e. extracting the ROI's DEM from the downloaded DEM raster, we can use *crop_region_basic*, *crop_region* or *crop_region_subpixel* available in [utils.py](PySEBAL_code/utils.py) python script.
+
+4. **Processsing GLDAS Meteorological Data**
 
    The purpose of pre-processing is to convert the downloaded meteorological data from GLDAS into desired units and parameters as mentioned in PySEBAL documentation. 
 
@@ -164,6 +155,44 @@ The following steps would be executed to run pySEBAL model.
    Incase of requirement for processing specific dated meteo data, set *BULK_PROCESSING* parameter to *False* and enter the desired dates in *MISSING_DATES* parameter from *Config.py* file
 > [!NOTE]
 > The over pass time for landsat 8/9 over Pakistan is around 0545 hrs (GMT) with corresponding meteo data of time 0600. You can verify the satellite overpass dates from [link](https://landsat.usgs.gov/landsat_acq) and overpass time form [link](https://www.ssec.wisc.edu/datacenter/polar_orbit_tracks/ )
+
+5. **Processsing of HiHydroSoil Data**
+
+   In order to extract the desired parameters from the raster files, first set the values for global variables in *Config.py* python file followed by execution of [soil_processing.py](PySEBAL_code/soil_processing.py) as following:
+
+   ```bash
+   SOIL_INDIR = "D:\SEBAL\datasets\soil\HiHydroSoil_250m\Top_Subsoil\\"
+   SOIL_OUTDIR = "D:\SEBAL\datasets\soil\\"
+   ```
+
+   ```bash
+   python soil_processing.py
+   ```
+> [!NOTE]
+> It is recommended that you run the soil processing script for complete region e.g. Pakistan, instead for running it repeatedly for every ROI.
+
+6. **Generating Excel File (Additional)**
+
+   The final step before running the PySEBAL model over ROI is filling all the above generated data details / paths in the *InputExcel* file available in [docs](PySEBAL_dev\docs) folder. The same file can be filled manually. In case exhaustive list of inputs, a helper excel file can be generated to expedite the same.   
+
+   set the values for global variables in *Config.py* python file followed by execution of [excel_processing.py](PySEBAL_code/excel_processing.py) as following:
+
+   ```bash
+   DOCS_INDIR = "D:\SEBAL\PySEBAL_dev\docs\\"
+   SEBAL_OUTDIR = "D:\SEBAL\datasets\swf\\"
+   ```
+
+   ```bash
+   python excel_processing.py
+   ```
+7. **Run PySEBAL**
+
+   Once the *InputExcel* file is filled. We can run PySEBAL code by executing *Run_py3.py* script. We need to specify the path to *InputExcel* , starting and ending rows of excel file *st*,*en* (excluding the header row) in the same manner of done previously.  
+
+   ```bash
+   # Ensure the conda environment i.e. *sebal* is activated
+   python Run_py3.py
+   ```  
 
 ## Contributing
 
