@@ -34,7 +34,7 @@ indir_landsat = "D:\\Hamza\\SEBAL\\datasets\\landsat\\LBDC_exp\\149039\\"
 validate_landsat(indir_landsat, count=24, size= 1010)
 '''
 
-
+'''
 #===============================================================================
 print('----------------------------------------')
 print('------- Downloading GLDAS Meteo --------')
@@ -122,8 +122,8 @@ print('----------------------------------------')
 
 validate_gldas(outdir_gldas, count=8, size= 145)
 
-
 '''
+
 #===============================================================================
 
 def meteo_processing (indir, outdir, shapefile, ncdate = "A20210609"):
@@ -186,7 +186,7 @@ meteo_bulk_processing = True
 startTime_meteo = datetime.datetime.now()
 if meteo_bulk_processing:
     print("Bulk Processing Meterological data based on input dir")
-    indir_meteo = "D:\Hamza\SEBAL\datasets\meteo\def_mmm\\test\\"
+    indir_meteo = "D:\SEBAL\datasets\meteo\swf\\"
     # indir_meteo = "D:\\Hamza\\SEBAL\\datasets\\meteo\\def_mmm\\"
 
     folders = glob.glob(indir_meteo + "*\\", recursive = True)
@@ -209,7 +209,7 @@ else:
     meteo_processing (indir_meteo, outdir_meteo, shapefile, ncdate="A20210609")
 
 print('\n Meteorological Processing Execution time :', datetime.datetime.now() - startTime_meteo)
-'''
+
 #=============================================================================================================================
 #------------------------------------------
 #------- Filling the excel sheet ----------

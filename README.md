@@ -115,13 +115,7 @@ The following steps would be executed to run pySEBAL model.
    - verify  NASA GESDISC DATA ARCHIVE is in Accepted EULA
    - create the pre-requiste file for authentications using these [steps](https://disc.gsfc.nasa.gov/information/howto?title=How%20to%20Generate%20Earthdata%20Prerequisite%20Files)
 
-> [!WARNING]
-> You need to place .netrc with above created user login details, .urs_cookies (not compulsory) file in home dir and .dodrc (not compulsory) in project dir.
-
-> [!Note]
-> You (might) need to be signed in at Earthdata service at [link](https://urs.earthdata.nasa.gov/) before executing the code below.
-
-   Set the path of global variables in [config.py](PySEBAL_code/config.py) python file.
+   Set the values for global variables in *Config.py* python file.
    ```bash
    #------------------------------------------
    #------------- Meteo Files ----------------
@@ -145,10 +139,29 @@ The following steps would be executed to run pySEBAL model.
    METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf\\'
    MISSING_DATES = ['20230508', '20230516', '20230524']
    ```
+> [!WARNING]
+> You need to place .netrc with above created user login details, .urs_cookies (not compulsory) file in home dir and .dodrc (not compulsory) in project dir.
+
+> [!Note]
+> You (might) need to be signed in at Earthdata service at [link](https://urs.earthdata.nasa.gov/) before executing the code below.
+
 3. **Processsing GLDAS Meteorological Data**
 
    The purpose of pre-processing is to convert the downloaded meteorological data from GLDAS into desired units and parameters as mentioned in PySEBAL documentation. 
 
+   Set the values for global variables in *Config.py* python file.
+
+   ```bash
+   LANDSAT_OVERPASS = "0600"
+   BULK_PROCESSING = True
+   ```
+
+   Execute [gldas_processing.py](PySEBAL_code/gldas_download.py) Script.
+   ```bash
+   python gldas_processing.py
+   ```
+
+   Incase of requirement for processing specific dated meteo data, set *BULK_PROCESSING* parameter to *False* and enter the desired dates in *MISSING_DATES* parameter from *Config.py* file
 > [!NOTE]
 > The over pass time for landsat 8/9 over Pakistan is around 0545 hrs (GMT) with corresponding meteo data of time 0600. You can verify the satellite overpass dates from [link](https://landsat.usgs.gov/landsat_acq) and overpass time form [link](https://www.ssec.wisc.edu/datacenter/polar_orbit_tracks/ )
 

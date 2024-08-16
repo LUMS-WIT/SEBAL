@@ -2,8 +2,8 @@ import os, glob
 import shutil
 import datetime
 
-from utils import netCDF_to_tif, crop_region, get_meteo
-from config import LANDSAT_OVERPASS, SHAPEFILE, METEO_INDIR, BULK_PROCESSING
+from utils import netCDF_to_tif, crop_region, crop_region_subpixel, get_meteo
+from config import LANDSAT_OVERPASS, SHAPEFILE, METEO_INDIR, BULK_PROCESSING, MISSING_DATES
 
 def meteo_processing (indir, outdir, shapefile, ncdate = "A20210609"):
 
@@ -33,7 +33,12 @@ def meteo_processing (indir, outdir, shapefile, ncdate = "A20210609"):
     print('----------------------------------------')
 
     # step 2 : crop the region
-    crop_region(tempdir, tempdir, shapefile)
+    try:
+        # TODO: Outphase crop_region with subpixel to use gdal.translate for region cropping 
+        crop_region(tempdir, tempdir, shapefile)
+    except:
+        print('Shapefile is sub-pixel. Modifying to include atleast one pixel')
+        crop_region_subpixel(tempdir, tempdir, shapefile)
 
     print('--------------------------------------------------')
     print('--- Generating Instantanous and Daily Averages ---')
@@ -59,10 +64,11 @@ def meteo_processing (indir, outdir, shapefile, ncdate = "A20210609"):
 if __name__ == "__main__":
 
     startTime_meteo = datetime.datetime.now()
+    indir_meteo = METEO_INDIR
+    
     if BULK_PROCESSING:
         print("Bulk Processing Meterological data based on input dir")
-        indir_meteo = METEO_INDIR
-
+        
         folders = glob.glob(indir_meteo + "*\\", recursive = True)
         total_folders = len(folders)
         i = 1
@@ -78,9 +84,17 @@ if __name__ == "__main__":
             i = i + 1
 
     else:
-        indir_meteo = 'F:\\SEBAL\\datasets\\meteo\\Downloads\\20210609\\'
-        outdir_meteo = 'F:\\SEBAL\\datasets\\meteo\\Downloads\\20210609_out\\'
-        meteo_processing (indir_meteo, outdir_meteo, SHAPEFILE, ncdate="A20210609")
+        for date in MISSING_DATES:
+            ncdate = "A" +  date
+            indir = METEO_INDIR  + "{}\\".format(date)
+            outdir = METEO_INDIR + "{}_out\\".format(date)
+
+            meteo_processing (indir, outdir, SHAPEFILE, ncdate=ncdate)
+
+
+        # indir_meteo = 'F:\\SEBAL\\datasets\\meteo\\Downloads\\20210609\\'
+        # outdir_meteo = 'F:\\SEBAL\\datasets\\meteo\\Downloads\\20210609_out\\'
+        # meteo_processing (indir_meteo, outdir_meteo, SHAPEFILE, ncdate="A20210609")
 
     print('\n Meteorological Processing Execution time :', datetime.datetime.now() - startTime_meteo)
 

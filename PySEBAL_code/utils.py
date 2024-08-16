@@ -473,14 +473,31 @@ def crop_region(indir, outdir, shapefile):
     path = indir + '*.tif'
     files = glob.glob(path, recursive=False)
 
-    # set Wrap Options
-    wrapOptions = gdal.WarpOptions(cutlineDSName = shapefile, 
-                    cropToCutline = True, dstNodata = np.nan,
-                    resampleAlg='cubicspline', dstSRS= "EPSG:4326",
-                    # xRes = 0.25, yRes = 0.25,
-                    #options='overwrite'
-                    )
+    # Calculate the bounding box for the shapefile
+    shape_ds = gdal.OpenEx(shapefile, gdal.OF_VECTOR)
+    if shape_ds is None:
+        raise RuntimeError(f"Failed to open shapefile: {shapefile}")
+        
+    layer = shape_ds.GetLayer()
+    extent = layer.GetExtent()
+    minX, maxX, minY, maxY = extent
 
+    # set Wrap Options
+    # wrapOptions = gdal.WarpOptions(cutlineDSName = shapefile, 
+    #                 cropToCutline = True, dstNodata = np.nan,
+    #                 resampleAlg='cubicspline', dstSRS= "EPSG:4326",
+    #                 # xRes = 0.25, yRes = 0.25,
+    #                 #options='overwrite'
+    #                 )
+    wrapOptions = gdal.WarpOptions(
+            cutlineDSName=shapefile, 
+            cropToCutline=True, 
+            dstNodata=np.nan,
+            resampleAlg='cubicspline', 
+            dstSRS="EPSG:4326",
+            outputBounds=(minX, minY, maxX, maxY),
+            warpMemoryLimit=1000
+            )
     for filename in files:
 
         print('Applying Cropping for raster : ', filename)
@@ -492,11 +509,83 @@ def crop_region(indir, outdir, shapefile):
         outds = outds.replace('.tif', '_crop.tif')
         
         dsclip = gdal.Warp(outds, ds, options = wrapOptions)
-
+        if dsclip is None:
+            raise RuntimeError("Cropping failed, resulting dataset is sub-pixel or invalid.")
+        
         ds = None
         dsclip = None
     
     return
+
+def crop_region_subpixel(indir, outdir, shapefile):
+    """
+    (meteo) using gdal Warp function and shapefile extent, crops and resamples tiff files
+
+    Usage
+    -----
+    indir = 'meteo\\'
+    outdir = 'meteo_out\\'
+    shapefile = 'path\\to\\shapefile.shp'
+
+    crop_region(indir, outdir, shapefile)
+
+    Parameters
+    ----------
+    indir : str
+        path to input dir
+    outdir : str
+        path to output dir
+    shapefile : str
+        path to shapefile
+    """
+    
+    # List all files
+    path = os.path.join(indir, '*.tif')
+    files = glob.glob(path, recursive=False)
+
+    for filename in files:
+        print('Applying Cropping for raster : ', filename)
+        
+        try:
+            ds = gdal.Open(filename)
+            if ds is None:
+                raise RuntimeError(f"Failed to open raster file: {filename}")
+            
+            # Get raster geotransform and pixel size
+            gt = ds.GetGeoTransform()
+            pixel_width = gt[1]
+            pixel_height = -gt[5]  # Typically, the height is negative in the geotransform
+
+            # Calculate the bounding box for the shapefile
+            shape_ds = gdal.OpenEx(shapefile, gdal.OF_VECTOR)
+            if shape_ds is None:
+                raise RuntimeError(f"Failed to open shapefile: {shapefile}")
+                
+            layer = shape_ds.GetLayer()
+            extent = layer.GetExtent()
+            minX, maxX, minY, maxY = extent
+
+        
+            # Construct output filename
+            filename = filename.split("\\")[-1]
+            outds = os.path.join(outdir,filename)
+            outds = outds.replace('.tif', '_crop.tif')
+            
+            gdal.Translate(outds, ds, projWin=[minX, maxY, maxX, minY])
+
+
+        except Exception as e:
+            print(f"An error occurred while processing {filename}: {e}")
+            continue  # Skip to the next file
+
+        finally:
+            # Clean up
+            ds = None
+            dsclip = None
+            shape_ds = None
+
+    return
+
 
 def get_gldas_struct(filename):
     """
