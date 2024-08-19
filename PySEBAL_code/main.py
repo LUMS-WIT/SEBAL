@@ -229,6 +229,26 @@ write_to_excel(folder_paths, folder_names, base_output_path, base_meteo_path, ex
 #=============================================================================================================================
 
 '''
+# convert crs
+print('\n------- Converting CRS to WGS84 EPSG 4326 --------')
+input_path = r'F:/SEBAL/datasets/SEBAL_out/LBDC/150039/'
+output_path = r'F:/SEBAL/datasets/validation/LBDC_validations/150039/'
+
+path = input_path + "**/*.tif"
+#Use glob to find all TIFF files in subdirectories
+files = glob.glob(path, recursive=True)
+
+if not os.path.isdir(output_path):
+    os.makedirs(output_path)
+
+# Filter the list to include only files with "Top_soil_moisture" in their name
+for filename in files:
+    if filename.endswith(".tif") and pattern in filename:        
+        convert_crs(filename, output_path, crs = 4326)
+
+'''
+
+'''
 # validations
 
 print('----------------------------------------------')
