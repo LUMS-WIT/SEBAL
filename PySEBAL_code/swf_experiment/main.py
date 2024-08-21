@@ -1,4 +1,4 @@
-import glob, os, datetime, sys
+import glob, os, datetime, sys, csv
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -9,19 +9,37 @@ from sebal_reader import SebalSoilMoistureData
 from witsms_reader import SoilMoistureData
 from validations.scaling import scaling
 
+# # ----------------------------------------------------------------------------------
+# # ---------------   Rescaling the dataset  -----------------------------------------
+# # ----------------------------------------------------------------------------------
 
-'''
+# pattern = 'Top_soil_moisture'
+# # pattern = 'Root_zone_moisture'
+# spatial_res = 350
+# # # convert crs
+# # print('\n------- Converting CRS to WGS84 EPSG 4326 --------')
+# input_path = r'D:\SEBAL\datasets\SEBAL_out\swf\\'
+# output_path = f'D:\SEBAL\datasets\SEBAL_out\swf_sm_{spatial_res}m\{pattern}\\'
+
+# if not os.path.isdir(output_path):
+#     os.makedirs(output_path)
+
+# resampling(input_path, output_path, target_resolution= spatial_res, pattern=pattern)
+
+# exit()
+
+
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------   Multi resolution with sms data overlay  -----------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
-
-scaling_ = False
+'''
+scaling_ = True
 pattern = 'Top_soil_moisture'
 # pattern = 'Root_zone_moisture'
-sms_id = 0
-spatial_ress = [30, 60, 90]
+sms_id = 4
+spatial_ress = [30, 5000]
 
 # Initialize the figure outside the loop
 plt.figure(figsize=(10, 5))
@@ -76,7 +94,7 @@ for spatial_res in spatial_ress:
         raster_dates, raster_values = test_data
 
     # Plot CSV data
-    if spatial_res == 30:
+    if spatial_res == spatial_ress[0]:
         plt.plot(csv_dates, csv_values, marker='o', linestyle='-', color='b', label='WIT-SMS')
 
     # Plot Raster data for each spatial resolution
@@ -196,7 +214,7 @@ plt.show()
 exit()
 '''
 
-
+'''
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------   All sebal/sms plots data for wheat feild  -----------------------------------------
@@ -205,7 +223,7 @@ exit()
 
 pattern = 'Top_soil_moisture'
 # pattern = 'Root_zone_moisture'
-spatial_res = 30
+spatial_res = 350
 sms_id = 0
 sebal = True
 
@@ -288,7 +306,7 @@ plt.tight_layout()
 
 # Show the plot
 plt.show()
-  
+''' 
 
 '''
 # ---------------------------------------------------------------------------------------------------
@@ -347,7 +365,7 @@ if scaling_:
 plt.figure(figsize=(10, 5))
 #plt.plot(dates, values, 'o')
 # Plot CSV data
-plt.plot(csv_dates, csv_values, marker='o', linestyle='-', color='purple', label='WIT-SMS')
+# plt.plot(csv_dates, csv_values, marker='o', linestyle='-', color='purple', label='WIT-SMS')
 
 plt.plot(raster_dates, raster_values, marker='x', linestyle='--', color='r', label=pattern)
 # plt.title(f'{pattern} Over Time')
@@ -365,3 +383,69 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 '''
+
+# --------------------------------------------------------------------------
+# ---------------   Save csv file  -----------------------------------------
+# --------------------------------------------------------------------------
+
+
+scaling_ = True
+pattern = 'Top_soil_moisture'
+sms_id = 4
+spatial_ress = [30, 60, 90, 120, 150, 180, 200, 220, 250, 300, 350, 400, 500, 1000, 5000]
+
+wit_sms_path = r'D:\SEBAL\datasets\witsms\processed\SWF SMS\daily'
+soil_moisture_data = SoilMoistureData(wit_sms_path)
+soil_moisture_data.read_data()
+metadata = soil_moisture_data.get_metadata()
+
+for _metadata in metadata:
+    lat, lon, gpi = float(_metadata['latitude']), float(_metadata['longitude']), str(_metadata['gpi'])
+
+    # Initialize a dictionary to store all data for this location
+    data_for_csv = {'TimeStamp': None}
+
+    for spatial_res in spatial_ress:
+        
+        input_path = r'D:\SEBAL\datasets\SEBAL_out\swf\\'
+        output_path = f'D:\SEBAL\datasets\SEBAL_out\swf_sm_{spatial_res}m\{pattern}\\'
+        csv_save_path = r'D:\SEBAL\datasets\SEBAL_out\\csv'
+
+        raster_data = SebalSoilMoistureData(output_path)
+
+        raster_dates, raster_values = raster_data.get_data(lat, lon)
+        csv_dates, csv_values = soil_moisture_data.get_soil_moisture_by_location(lat, lon)
+
+        raster_dates, raster_values = remove_nan_entries(raster_dates, raster_values)
+        csv_dates, csv_values = remove_nan_entries(csv_dates, csv_values)
+
+        if scaling_:
+            # Data statistical re-scaling
+            ref_data = (csv_dates, csv_values)  # Reference data from CSV files
+            test_data = (raster_dates, raster_values)  # Test data from raster files
+            test_data, _ = scaling(test_data, ref_data)
+            csv_dates, csv_values = ref_data
+            raster_dates, raster_values = test_data
+
+        # Ensure that TimeStamps are stored only once
+        if data_for_csv['TimeStamp'] is None:
+            data_for_csv['TimeStamp'] = raster_dates
+
+        # Add the raster values for the current spatial resolution to the dictionary
+        data_for_csv[f'{spatial_res}'] = [round(value, 4) for value in raster_values]
+
+    # Define the CSV file name
+    csv_filename = f"sebal_gpi={gpi}_lat={lat}_lon={lon}.csv"
+    csv_filepath = os.path.join(csv_save_path, csv_filename)
+
+    # Write the dictionary data to a CSV file
+    with open(csv_filepath, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        # Write the header
+        writer.writerow(['TimeStamp'] + [f'{res}m' for res in spatial_ress])
+        # Write the data rows
+        for i in range(len(data_for_csv['TimeStamp'])):
+            row = [data_for_csv['TimeStamp'][i]] + [data_for_csv[f'{res}'][i] for res in spatial_ress]
+            writer.writerow(row)
+
+    print(f"CSV file saved: {csv_filepath}")

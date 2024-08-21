@@ -165,7 +165,7 @@ def resample(infile, outdir, target_resolution=60, filename=None):
         src_ds,
         xRes=new_x_res, 
         yRes=new_y_res, 
-        resampleAlg='average',
+        resampleAlg='cubicspline',
         format="GTiff"
     )
     

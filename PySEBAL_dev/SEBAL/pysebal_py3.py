@@ -9,6 +9,10 @@ PySEBAL_dev_v3.8
 
 @author Sajid Pareeth
         February 2020
+
+@author Hamza Rafique
+        March 2024
+        August 2024
 """
 #import pdb
 import platform
@@ -92,7 +96,14 @@ def SEBALcode(number,inputExcel):
         
         # Calibartion constants Cold Pixels from the excel file 					
         Cold_Pixel_Constant = 0        # Cold Pixel Value = Mean_Cold_Pixel + Cold_Pixel_Constant * Std_Cold_Pixel (only for VIIRS images)
-        
+
+        # UPDATED @ Hamza
+        NDVIhot_low1 = float(ws['J%d' %number].value)            # Lower NDVI treshold for hot pixels
+        NDVIhot_high1 = float(ws['K%d' %number].value)              # Higher NDVI treshold for hot pixels
+        tcoldmin1 = float(ws['H%d' %number].value)
+        tcoldmax1 = float(ws['I%d' %number].value)
+        temp_lapse = float(ws['L%d' %number].value)
+
         # Pixel size of the model
         pixel_spacing = int(250) 	
  		
@@ -418,12 +429,15 @@ def SEBALcode(number,inputExcel):
         h_obst_name = '%s' %str(ws['O%d' %number].value) 
         h_obst_kind_of_data=1                  # Obstacle height (m) -Replace for map based on Land use?
         print('Map to the Obstacle height = %s' %(h_obst_name))
-											
-    #NDVIhot_low = 0.03               # Lower NDVI treshold for hot pixels
-    #NDVIhot_high = 0.20              # Higher NDVI treshold for hot pixels
-    print('Lower NDVI treshold for hot pixels = %s' %(NDVIhot_low1))			
-    print('Higher NDVI treshold for hot pixels = %s' %(NDVIhot_high1))					
-			
+
+    # UPDATED @ Hamza				
+    
+    if Image_Type == 1:
+        #NDVIhot_low = 0.03               # Lower NDVI treshold for hot pixels
+        #NDVIhot_high = 0.20              # Higher NDVI treshold for hot pixels
+        print('Lower NDVI treshold for hot pixels = %s' %(NDVIhot_low1))			
+        print('Higher NDVI treshold for hot pixels = %s' %(NDVIhot_high1))					
+		
    
     # Data for Module 12 - Soil moisture
 			
@@ -633,6 +647,9 @@ def SEBALcode(number,inputExcel):
         # Get the information out of the VIIRS name
         year = int(Total_Day_MODIS[0:4])
         DOY = day = int(Total_Day_MODIS[4:7])
+
+        # UPDATED @ Hamza
+        mon = int( (datetime.datetime(year, 1, 1) + datetime.timedelta(DOY - 1)).month)
  
         # define the kind of sensor and resolution of the sensor	
         sensor1 = 'MODIS'
@@ -1017,6 +1034,8 @@ def SEBALcode(number,inputExcel):
     # 1)
     #constants:
     Temp_lapse_rate = temp_lapse  # Temperature lapse rate (°K/m) - 0.0065(ORI)
+
+
     Gsc = 1367        # Solar constant (W / m2)   
     SB_const = 5.6703E-8  # Stefan-Bolzmann constant (watt/m2/°K4)
         
@@ -1978,7 +1997,7 @@ def SEBALcode(number,inputExcel):
             assert "Please check the PROBA-V path, was not able to create NDVI"
 												
 
-        # Check SAVI	
+        # Check SAVI
         try:
             if (ws['C%d' % number].value) is not None:					
                 # Output folder SAVI	defined by the user					
@@ -1995,7 +2014,7 @@ def SEBALcode(number,inputExcel):
 
                 # Open and reproject B2            
                 B2_modis = Open_reprojected_hdf(src_FileName_Ref, 12, epsg_to, 0.0001, proyDEM_fileName)
- 
+
                 # Calculate SAVI               
                 SAVI = (B2_modis - B1_modis) /(B2_modis + B1_modis + L_SAVI) * (1+L_SAVI)
                 
@@ -2003,7 +2022,9 @@ def SEBALcode(number,inputExcel):
                 savi_fileName = os.path.join(output_folder, 'Output_vegetation', '%s_SAVI_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))	
 															
                 # Save the PROBA-V SAVI as tif file															
-                save_GeoTiff_proy(lsc, SAVI, savi_fileName, shape_lsc, nband=1)																  
+                save_GeoTiff_proy(lsc, SAVI, savi_fileName, shape_lsc, nband=1)
+
+                																  
         except:
              assert "Please check the PROBA-V path, was not able to create SAVI"       
 								
@@ -2285,7 +2306,14 @@ def SEBALcode(number,inputExcel):
     Transm_corr[Transm_corr<0.001]=0.1
     Transm_corr[Transm_corr>1]=1
     atmos_emis = 0.85 * np.power(-np.log(Transm_corr), 0.09) 
-      
+    #####################################################################################################################################################################################
+    #####################################################################################################################################################################################
+    #     #####################################################################################################################################################################################
+    #     #####################################################################################################################################################################################
+    #     #####################################################################################################################################################################################
+    #     #####################################################################################################################################################################################    
+    # Ra_inst is nan , line 838
+
     # Instantaneous incoming longwave radiation:
     lw_in_inst = atmos_emis * SB_const * np.power(Temp_inst + 273.15, 4) 
     print('Instantaneous longwave incoming radiation = %0.3f (W/m2)' % np.nanmean(lw_in_inst))    
@@ -4180,6 +4208,46 @@ def Check_dT(rn_inst, g_inst, LAI, vegt_cover, z0m, u_200, Temp_inst, RH_inst, a
     T0_DEM += 273.15
 									
     return(dT, T0_DEM)	
+#------------------------------------------------------------------------------  
+# UPDATED @ Hamza
+from osgeo import gdal, osr
+
+def reproject_MODIS_updated(input_name, output_name, epsg_to):   
+    
+    '''
+    Reproject the MODIS data file using GDAL Python bindings with equivalent options to the original command line.
+    
+    Keywords arguments:
+    input_name -- Path to the input file
+    output_name -- Path to the output file
+    epsg_to -- EPSG code for the target projection
+    '''                    
+    
+    # Open the input dataset
+    input_ds = gdal.Open(input_name)
+    
+    # Define the source projection manually as "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"
+    src_proj = osr.SpatialReference()
+    src_proj.ImportFromProj4("+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs")
+
+    # Create the target spatial reference using the EPSG code
+    tgt_proj = osr.SpatialReference()
+    tgt_proj.ImportFromEPSG(int(epsg_to))
+
+    # Create a warp options object with the source and target projections
+    warp_options = gdal.WarpOptions(
+        srcSRS=src_proj.ExportToProj4(),   # Source SRS in PROJ.4 format
+        dstSRS=tgt_proj.ExportToWkt(),     # Target SRS in WKT format
+        format='GTiff'                     # Output format
+    )
+
+    # Reproject the dataset using the Warp function
+    gdal.Warp(destNameOrDestDS=output_name, srcDSOrSrcDSTab=input_ds, options=warp_options)
+    
+    # Close the datasets
+    input_ds = None
+    
+    return()
 
 #------------------------------------------------------------------------------   
 def reproject_MODIS(input_name, output_name, epsg_to):   
@@ -4220,7 +4288,9 @@ def Open_reprojected_hdf(input_name, Band, epsg_to, scale_factor, proyDEM_fileNa
     # Open and reproject           
     name_in = g.GetSubDatasets()[Band][0]
 
-    reproject_MODIS(name_in, output_name_temp, epsg_to)
+    # UPDATED @ Hamza
+    reproject_MODIS_updated(name_in, output_name_temp, epsg_to)
+    # reproject_MODIS(name_in, output_name_temp, epsg_to)
 
     dest, ulx_dem, lry_dem, lrx_dem, uly_dem, epsg_to = reproject_dataset_example(output_name_temp, proyDEM_fileName)
     Array = dest.GetRasterBand(1).ReadAsArray() * scale_factor
