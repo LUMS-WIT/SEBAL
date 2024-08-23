@@ -2306,13 +2306,6 @@ def SEBALcode(number,inputExcel):
     Transm_corr[Transm_corr<0.001]=0.1
     Transm_corr[Transm_corr>1]=1
     atmos_emis = 0.85 * np.power(-np.log(Transm_corr), 0.09) 
-    #####################################################################################################################################################################################
-    #####################################################################################################################################################################################
-    #     #####################################################################################################################################################################################
-    #     #####################################################################################################################################################################################
-    #     #####################################################################################################################################################################################
-    #     #####################################################################################################################################################################################    
-    # Ra_inst is nan , line 838
 
     # Instantaneous incoming longwave radiation:
     lw_in_inst = atmos_emis * SB_const * np.power(Temp_inst + 273.15, 4) 
@@ -4210,6 +4203,47 @@ def Check_dT(rn_inst, g_inst, LAI, vegt_cover, z0m, u_200, Temp_inst, RH_inst, a
     return(dT, T0_DEM)	
 #------------------------------------------------------------------------------  
 # UPDATED @ Hamza
+import os
+import platform
+import subprocess
+
+# def reproject_MODIS_updated(input_name, output_name, epsg_to):   
+    
+#     '''
+#     Reproject the merged data file using gdalwarp from the Conda environment.
+    
+#     Keywords arguments:
+#     input_name -- Path to the input file
+#     output_name -- Path to the output file
+#     epsg_to -- EPSG code for the target projection
+#     '''                    
+    
+#     # Construct the input name as in your original script
+#     split_input = input_name.split('hdf":')
+#     inputname = '%shdf":"%s"' % (split_input[0], split_input[1])
+
+#     # Build the command using the gdalwarp command available in the environment
+#     cmd = [
+#         'gdalwarp',
+#         '-overwrite',
+#         '-s_srs', '"+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"',
+#         '-t_srs', f'EPSG:{epsg_to}',
+#         '-of', 'GTiff',
+#         inputname,
+#         output_name
+#     ]
+
+#     try:
+#         # Execute the command using subprocess
+#         subprocess.run(cmd, check=True, capture_output=True, text=True)
+#         print(f"Reprojected file saved to {output_name}")
+#     except subprocess.CalledProcessError as e:
+#         print(f"Error occurred: {e.stderr}")
+#         raise
+
+#     return
+
+
 from osgeo import gdal, osr
 
 def reproject_MODIS_updated(input_name, output_name, epsg_to):   
@@ -4222,11 +4256,14 @@ def reproject_MODIS_updated(input_name, output_name, epsg_to):
     output_name -- Path to the output file
     epsg_to -- EPSG code for the target projection
     '''                    
-    
+    # Construct the input name to match the original script handling
+    split_input = input_name.split('hdf":')
+    inputname = '%shdf":"%s"' % (split_input[0], split_input[1])    
+
     # Open the input dataset
     input_ds = gdal.Open(input_name)
     
-    # Define the source projection manually as "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"
+    # Define the source projection manually as used in the original command line
     src_proj = osr.SpatialReference()
     src_proj.ImportFromProj4("+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs")
 
@@ -4234,11 +4271,23 @@ def reproject_MODIS_updated(input_name, output_name, epsg_to):
     tgt_proj = osr.SpatialReference()
     tgt_proj.ImportFromEPSG(int(epsg_to))
 
-    # Create a warp options object with the source and target projections
+    # Define additional warp options to match the command line
     warp_options = gdal.WarpOptions(
-        srcSRS=src_proj.ExportToProj4(),   # Source SRS in PROJ.4 format
-        dstSRS=tgt_proj.ExportToWkt(),     # Target SRS in WKT format
-        format='GTiff'                     # Output format
+        srcSRS=src_proj.ExportToProj4(),    # Source SRS in PROJ.4 format
+        dstSRS=tgt_proj.ExportToWkt(),      # Target SRS in WKT format
+        format='GTiff',                     # Output format
+        resampleAlg='near',                 # Resampling algorithm (nearest neighbor, common default)
+        errorThreshold=0.125,               # Error threshold (default for gdalwarp)
+        warpMemoryLimit=512,                # Memory limit (default for gdalwarp)
+        outputBounds=None,                  # Use default bounds
+        outputBoundsSRS=None,               # Use default output bounds SRS
+        xRes=None,                          # Use default x resolution
+        yRes=None,                          # Use default y resolution
+        targetAlignedPixels=False,          # Default target alignment
+        multithread=False,                  # Default multithreading behavior
+        tps=False,                          # Disable thin plate spline
+        rpc=False,                          # Disable RPC (Rational Polynomial Coefficients)
+        geoloc=False                       # Disable geolocation array
     )
 
     # Reproject the dataset using the Warp function
@@ -4247,7 +4296,7 @@ def reproject_MODIS_updated(input_name, output_name, epsg_to):
     # Close the datasets
     input_ds = None
     
-    return()
+    return
 
 #------------------------------------------------------------------------------   
 def reproject_MODIS(input_name, output_name, epsg_to):   

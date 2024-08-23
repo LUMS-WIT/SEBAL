@@ -53,14 +53,18 @@ To run the models and scripts in this repository, ensure your system meets the f
 
 > [!WARNING]
 > If PySEBAL_dev is not in *D:* drive, you need to update the paths in excel sheet for the dataset location.
+4. **Download Satellite Data**
 
-4. **Download Landsat Data**
-   - The Landsat 8/9 data can be downloaded freely from [EarthExplorer](https://earthexplorer.usgs.gov/) for which you need to register.
-   - Download **Landsat Collection 2 Level-1** data for the given dates and region of interest (ROI).
-   - Place the downloaded dataset in *SEBAL\datasets\landsat\\* folder
+   1. **Download Landsat Data**
+      - The Landsat 8/9 data can be downloaded freely from [EarthExplorer](https://earthexplorer.usgs.gov/) for which you need to register.
+      - Download **Landsat Collection 2 Level-1** data for the given dates and region of interest (ROI).
+      - Place the downloaded dataset in *SEBAL\datasets\landsat\\* folder
+   2. **Download MODIS data**
+      - The MODIS data can be downloaded from [Earthdata](https://search.earthdata.nasa.gov/search).
+      - The three products required be be downloaded are **MOD09GA**, **MOD11A1** and **MOD13Q1**.
 > [!NOTE]
 > Please ensure (visually) that the ROI is not completely covered by clouds. You can set Cloud Cover option to 80% in the search criteria.
-> For downloading mulitple images, It is recommended to use Bulk Download option. 
+> For downloading mulitple images, It is recommended to use Bulk Download option in EarthExplorer and *Earthdata Download* downloader [application](https://nasa.github.io/earthdata-download/) [doc](https://github.com/nasa/earthdata-download). 
 
 5. **Download DEM**
    - A DEM of ROI is required. There are multiple option to download DEM including
@@ -86,6 +90,53 @@ To run the models and scripts in this repository, ensure your system meets the f
    - Shapefile for ROI needs to be developed in QGIS covering the desired extents.
    - The shapefile needs to be overlapping with DEM, soil data and landsat data. 
 
+8. **Downloading Meteorological Data**
+   The meteorological data for ROI needs to be available for pySEBAL code. This includes the instantaneous and 24 hours average *Temperature*, *Relative Humidity*, *Windspeed* and *Downwards shortwave radiation*. The data can be downloaded in two different ways as following:
+
+   **Method 1 (Preffered)**
+   - You can download the data for the given dates at [Earthdata](https://search.earthdata.nasa.gov/search).
+   - The required product is the 3 Hourly *GLDAS_NOAH025_3H*.
+   - Once downloaded, you need to carryout the following additonal step for organizing the data.
+
+   ```bash
+   # config.py
+   METEO_INDIR_TEMP = 'D:\SEBAL\datasets\meteo\swf_mod\GLDAS_NOAH025_3H_2.1-20240822_074759\\'
+   METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf_mod\\'
+   ```
+
+   ```bash
+   python gldas_organize.py
+   ```
+
+   **Method 2**
+   The same can be downloaded form GLDAS NOAH2.5 3H[NASA Server](https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/) automatically through python script. Follow [these](https://disc.gsfc.nasa.gov/information/documents?title=Data%20Access) steps before executing the script.
+
+      - create an account using these [steps](https://wiki.earthdata.nasa.gov/display/EL/How+To+Register+For+an+EarthData+Login+Profile)
+      - authorize NASA GESDISC DATA ARCHIVE via your account using these [steps](https://disc.gsfc.nasa.gov/earthdata-login)
+      - verify  NASA GESDISC DATA ARCHIVE is in Accepted EULA
+      - create the pre-requiste file for authentications using these [steps](https://disc.gsfc.nasa.gov/information/howto?title=How%20to%20Generate%20Earthdata%20Prerequisite%20Files)
+
+      Set the values for global variables in *Config.py* python file.
+      ```bash
+      BULK_DOWNLOAD = True
+      METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf\\'
+      ```
+      Execute [gldas_download.py](PySEBAL_code/gldas_download.py) Script.
+      ```bash
+      python gldas_download.py
+      ```
+
+      Incase of requirement for downloading specific dated meteo data e.g. failed validation. Make following changes in the *config.py* file to include the desired dates. Followed by re-running the script. 
+      ```bash
+      BULK_DOWNLOAD = False
+      METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf\\'
+      MISSING_DATES = ['20230508', '20230516', '20230524']
+      ```
+> [!WARNING]
+> You need to place .netrc with above created user login details, .urs_cookies (not compulsory) file in home dir and .dodrc (not compulsory) in project dir.
+
+> [!Note]
+> You (might) need to be signed in at Earthdata service at [link](https://urs.earthdata.nasa.gov/) before executing the code below.
 
 ## Usage
 
@@ -102,41 +153,10 @@ The following steps would be executed to run pySEBAL model.
    ```bash
    python landsat_processing.py
    ```
-2. **Downloading Meteorological Data**
-
-   The meteorological data for ROI needs to be available for pySEBAL code. This includes the instantaneous and 24 hours average *Temperature*, *Relative Humidity*, *Windspeed* and *Downwards shortwave radiation*. The same can be downloaded form GLDAS NOAH2.5 3H[NASA Server](https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/) automatically through python script. Follow [these](https://disc.gsfc.nasa.gov/information/documents?title=Data%20Access) steps before executing the script.
-
-   - create an account using these [steps](https://wiki.earthdata.nasa.gov/display/EL/How+To+Register+For+an+EarthData+Login+Profile)
-   - authorize NASA GESDISC DATA ARCHIVE via your account using these [steps](https://disc.gsfc.nasa.gov/earthdata-login)
-   - verify  NASA GESDISC DATA ARCHIVE is in Accepted EULA
-   - create the pre-requiste file for authentications using these [steps](https://disc.gsfc.nasa.gov/information/howto?title=How%20to%20Generate%20Earthdata%20Prerequisite%20Files)
-
-   Set the values for global variables in *Config.py* python file.
-   ```bash
-   BULK_DOWNLOAD = True
-   METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf\\'
-   ```
-   Execute [gldas_download.py](PySEBAL_code/gldas_download.py) Script.
-   ```bash
-   python gldas_download.py
-   ```
-
-   Incase of requirement for downloading specific dated meteo data e.g. failed validation. Make following changes in the *config.py* file to include the desired dates. Followed by re-running the script. 
-   ```bash
-   BULK_DOWNLOAD = False
-   METEO_INDIR = 'D:\SEBAL\datasets\meteo\swf\\'
-   MISSING_DATES = ['20230508', '20230516', '20230524']
-   ```
-> [!WARNING]
-> You need to place .netrc with above created user login details, .urs_cookies (not compulsory) file in home dir and .dodrc (not compulsory) in project dir.
-
-> [!Note]
-> You (might) need to be signed in at Earthdata service at [link](https://urs.earthdata.nasa.gov/) before executing the code below.
-
-3. **Processing of DEM**
+2. **Processing of DEM**
    DEM for the ROI would be required in the subsequent steps. It is recommended that the same processing should be carried out in QGIS. In case of manual processing i.e. extracting the ROI's DEM from the downloaded DEM raster, we can use *crop_region_basic*, *crop_region* or *crop_region_subpixel* available in [utils.py](PySEBAL_code/utils.py) python script.
 
-4. **Processsing GLDAS Meteorological Data**
+3. **Processsing GLDAS Meteorological Data**
 
    The purpose of pre-processing is to convert the downloaded meteorological data from GLDAS into desired units and parameters as mentioned in PySEBAL documentation. 
 
@@ -156,7 +176,10 @@ The following steps would be executed to run pySEBAL model.
 > [!NOTE]
 > The over pass time for landsat 8/9 over Pakistan is around 0545 hrs (GMT) with corresponding meteo data of time 0600. You can verify the satellite overpass dates from [link](https://landsat.usgs.gov/landsat_acq) and overpass time form [link](https://www.ssec.wisc.edu/datacenter/polar_orbit_tracks/ )
 
-5. **Processsing of HiHydroSoil Data**
+> [!NOTE]
+> For the overpass of MODIS, the MOD09GA reflactance product is associated with Terra having overpass time around 0530 hrs (GMT). Therefore you can use the same *LANDSAT_OVERPASS* variable for MODIS processing.
+
+4. **Processsing of HiHydroSoil Data**
 
    In order to extract the desired parameters from the raster files, first set the values for global variables in *Config.py* python file followed by execution of [soil_processing.py](PySEBAL_code/soil_processing.py) as following:
 
@@ -171,7 +194,7 @@ The following steps would be executed to run pySEBAL model.
 > [!NOTE]
 > It is recommended that you run the soil processing script for complete region e.g. Pakistan, instead for running it repeatedly for every ROI.
 
-6. **Generating Excel File (Additional)**
+5. **Generating Excel File (Additional)**
 
    The final step before running the PySEBAL model over ROI is filling all the above generated data details / paths in the *InputExcel* file available in [docs](PySEBAL_dev\docs) folder. The same file can be filled manually. In case exhaustive list of inputs, a helper excel file can be generated to expedite the same.   
 
@@ -180,12 +203,13 @@ The following steps would be executed to run pySEBAL model.
    ```bash
    DOCS_INDIR = "D:\SEBAL\PySEBAL_dev\docs\\"
    SEBAL_OUTDIR = "D:\SEBAL\datasets\swf\\"
+   IMAGE_TYPE = 1 # 3 for MODIS
    ```
 
    ```bash
    python excel_processing.py
    ```
-7. **Run PySEBAL**
+6. **Run PySEBAL**
 
    Once the *InputExcel* file is filled. We can run PySEBAL code by executing *Run_py3.py* script. We need to specify the path to *InputExcel* , starting and ending rows of excel file *st*,*en* (excluding the header row) in the same manner of done previously.  
 

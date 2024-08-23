@@ -91,10 +91,5 @@ if __name__ == "__main__":
 
             meteo_processing (indir, outdir, SHAPEFILE, ncdate=ncdate)
 
-
-        # indir_meteo = 'F:\\SEBAL\\datasets\\meteo\\Downloads\\20210609\\'
-        # outdir_meteo = 'F:\\SEBAL\\datasets\\meteo\\Downloads\\20210609_out\\'
-        # meteo_processing (indir_meteo, outdir_meteo, SHAPEFILE, ncdate="A20210609")
-
     print('\n Meteorological Processing Execution time :', datetime.datetime.now() - startTime_meteo)
 

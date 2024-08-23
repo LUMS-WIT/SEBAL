@@ -5,6 +5,8 @@ from tqdm import tqdm
 from osgeo_utils.gdal_calc import Calc
 import netCDF4
 import openpyxl
+import re
+from openpyxl.styles import PatternFill
 '''
 ----------------------------------------------------------------
 ---------- Downloading NASA Lansat 8/9 Data --------------------
@@ -1093,6 +1095,122 @@ def write_to_excel(folder_paths, folder_names, base_output_path, base_meteo_path
 
     workbook.save(excel_file_path)
     print(f"Data has been written to {excel_file_path}")
+
+def write_to_excel_modis(base_folder, base_output_path, base_meteo_path, output_excel):
+    # Create a workbook
+    wb = openpyxl.Workbook()
+    
+    # Create the General_Input sheet first
+    ws_general = wb.active
+    ws_general.title = "General_Input"
+
+    # Add header to the General_Input worksheet
+    ws_general.append(['OutputMap'])
+
+    # Create a new sheet named Meteo_Input
+    ws_meteo = wb.create_sheet(title="Meteo_Input")
+
+    # Writing headers for Meteo_Input sheet
+    headers_meteo = ['Temp_inst', 'Temp_24', 'RH_inst', 'RH_24', 'Wind_inst', 'Wind_24', 'Rs_24', 'Rs_in_inst_cloud_free']
+    ws_meteo.append(headers_meteo)
+
+    # Initialize dictionaries to store files by type and date
+    mod11a1_files = {}
+    mod09ga_files = {}
+    mod13q1_files = {}
+
+    # Regular expression to match file names and extract date
+    file_pattern = re.compile(r'^(MOD[0-9A-Za-z]+)\.A(\d{7})\..*\.hdf$')
+
+    # Step 1: List all the files in the base folder
+    for file_name in os.listdir(base_folder):
+        if file_name.endswith('.hdf'):
+            match = file_pattern.match(file_name)
+            if match:
+                file_type = match.group(1).lower()
+                file_date = match.group(2)
+                file_name_without_ext = os.path.splitext(file_name)[0]
+                
+                # Step 2: Segregate files based on their type
+                if file_type == 'mod11a1':
+                    mod11a1_files[file_date] = file_name_without_ext
+                elif file_type == 'mod09ga':
+                    mod09ga_files[file_date] = file_name_without_ext
+                elif file_type == 'mod13q1':
+                    mod13q1_files[file_date] = file_name_without_ext
+
+    # Step 3 and 4: Use MOD11A1 as reference, find corresponding files, and fill in the Excel
+    dates = []
+    dates_meteo = []
+    for date in mod11a1_files:
+        mod11a1_file = mod11a1_files.get(date, '')
+        mod09ga_file = mod09ga_files.get(date, '')
+        mod13q1_file = mod13q1_files.get(date, '')
+        
+        # Step 5: Record the date
+        dates.append(date)
+        # Step 6: Convert the date for meteo path i.e. 'year' + 'DOY' to 'year' + 'month' + 'day'
+        date_obj = datetime.datetime.strptime(date, '%Y%j')  # '%Y%j' for 'year' and 'DOY'
+        date_meteo = date_obj.strftime('%Y%m%d')  # Convert to 'yearmonthday' format
+        dates_meteo.append(date_meteo)
+
+        # Write the paths to the Meteo_Input sheet
+        temp_inst_value = f'{date_meteo}_out\GLDAS_NOAH025_3H.A{date_meteo}.0600_Tair_crop_deg_inst.tif'
+        temp_24_value = f'{date_meteo}_out\GLDAS_NOAH025_3H.A{date_meteo}.Tair_crop_deg_24.tif'
+        rh_inst_value = f'{date_meteo}_out\GLDAS_NOAH025_3H.A{date_meteo}.0600_Rh_crop_percent_inst.tif'
+        rh_24_value = f'{date_meteo}_out\GLDAS_NOAH025_3H.A{date_meteo}.Rh_crop_percent_24.tif'
+        wind_inst_value = f'{date_meteo}_out\GLDAS_NOAH025_3H.A{date_meteo}.0600_Wind_crop_ms_inst.tif'
+        wind_24_value = f'{date_meteo}_out\GLDAS_NOAH025_3H.A{date_meteo}.Wind_crop_ms_24.tif'
+        rs_in_inst_value = f'{date_meteo}_out\GLDAS_NOAH025_3H.A{date_meteo}.0600_SWdown_crop_Wm_inst.tif'
+        rs_24_value = f'{date_meteo}_out\GLDAS_NOAH025_3H.A{date_meteo}.SWdown_crop_Wm_24.tif'
+
+        # Construct full paths
+        temp_inst_path = os.path.join(base_meteo_path, temp_inst_value)
+        temp_24_path = os.path.join(base_meteo_path, temp_24_value)
+        rh_inst_path = os.path.join(base_meteo_path, rh_inst_value)
+        rh_24_path = os.path.join(base_meteo_path, rh_24_value)
+        wind_inst_path = os.path.join(base_meteo_path, wind_inst_value)
+        wind_24_path = os.path.join(base_meteo_path, wind_24_value)
+        rs_in_inst_path = os.path.join(base_meteo_path, rs_in_inst_value)
+        rs_24_path = os.path.join(base_meteo_path, rs_24_value)
+
+        # Write the paths to the Meteo_Input sheet
+        # Check if each file exists and highlight if missing
+        paths = [
+            temp_inst_path, temp_24_path, rh_inst_path, rh_24_path,
+            wind_inst_path, wind_24_path, rs_24_path, rs_in_inst_path
+        ]
+        
+        for col, path in enumerate(paths, start=1):
+            if not os.path.exists(path):
+                ws_meteo.cell(row=len(dates_meteo) + 1, column=col, value=path).fill = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")
+            else:
+                ws_meteo.cell(row=len(dates_meteo) + 1, column=col, value=path)
+
+        # Write to General_Input sheet
+        output_path = os.path.join(base_output_path, date)
+        ws_general.append([output_path])
+
+    # Now, create the MODIS_Input sheet and move it to the end
+    ws_modis = wb.create_sheet(title="MODIS_Input", index=len(wb.sheetnames))
+
+    # Add headers to the MODIS_Input worksheet
+    headers_modis = ['MODIS 9 (Name without hdf extension)', 'MODIS 11 (Name without hdf extension)', 'MODIS 13 (Name without hdf extension)']
+    ws_modis.append(headers_modis)
+
+    # Write MODIS file paths to the MODIS_Input sheet
+    for date in dates:
+        mod11a1_file = mod11a1_files.get(date, '')
+        mod09ga_file = mod09ga_files.get(date, '')
+        mod13q1_file = mod13q1_files.get(date, '')
+        ws_modis.append([mod09ga_file, mod11a1_file, mod13q1_file])
+
+    # Save the workbook
+    wb.save(output_excel)
+    print(f"Data has been written to {output_excel}")
+
+    # Return the list of dates
+    return dates
 
 '''
 ----------------------------------------------------------------
