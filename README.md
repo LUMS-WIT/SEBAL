@@ -55,11 +55,14 @@ To run the models and scripts in this repository, ensure your system meets the f
 > If PySEBAL_dev is not in *D:* drive, you need to update the paths in excel sheet for the dataset location.
 4. **Download Satellite Data**
 
-   1. **Download Landsat Data**
+   **Landsat Data**
+
       - The Landsat 8/9 data can be downloaded freely from [EarthExplorer](https://earthexplorer.usgs.gov/) for which you need to register.
       - Download **Landsat Collection 2 Level-1** data for the given dates and region of interest (ROI).
       - Place the downloaded dataset in *SEBAL\datasets\landsat\\* folder
-   2. **Download MODIS data**
+   
+   **MODIS data**
+
       - The MODIS data can be downloaded from [Earthdata](https://search.earthdata.nasa.gov/search).
       - The three products required be be downloaded are **MOD09GA**, **MOD11A1** and **MOD13Q1**.
 > [!NOTE]
@@ -91,9 +94,10 @@ To run the models and scripts in this repository, ensure your system meets the f
    - The shapefile needs to be overlapping with DEM, soil data and landsat data. 
 
 8. **Downloading Meteorological Data**
+   
    The meteorological data for ROI needs to be available for pySEBAL code. This includes the instantaneous and 24 hours average *Temperature*, *Relative Humidity*, *Windspeed* and *Downwards shortwave radiation*. The data can be downloaded in two different ways as following:
 
-   **Method 1 (Preffered)**
+   **Method 1 (Preferred)**
    - You can download the data for the given dates at [Earthdata](https://search.earthdata.nasa.gov/search).
    - The required product is the 3 Hourly *GLDAS_NOAH025_3H*.
    - Once downloaded, you need to carryout the following additonal step for organizing the data.
@@ -109,6 +113,7 @@ To run the models and scripts in this repository, ensure your system meets the f
    ```
 
    **Method 2**
+   
    The same can be downloaded form GLDAS NOAH2.5 3H[NASA Server](https://hydro1.gesdisc.eosdis.nasa.gov/data/GLDAS/GLDAS_NOAH025_3H.2.1/) automatically through python script. Follow [these](https://disc.gsfc.nasa.gov/information/documents?title=Data%20Access) steps before executing the script.
 
       - create an account using these [steps](https://wiki.earthdata.nasa.gov/display/EL/How+To+Register+For+an+EarthData+Login+Profile)
@@ -154,6 +159,7 @@ The following steps would be executed to run pySEBAL model.
    python landsat_processing.py
    ```
 2. **Processing of DEM**
+
    DEM for the ROI would be required in the subsequent steps. It is recommended that the same processing should be carried out in QGIS. In case of manual processing i.e. extracting the ROI's DEM from the downloaded DEM raster, we can use *crop_region_basic*, *crop_region* or *crop_region_subpixel* available in [utils.py](PySEBAL_code/utils.py) python script.
 
 3. **Processsing GLDAS Meteorological Data**
