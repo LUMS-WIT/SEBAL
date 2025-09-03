@@ -179,13 +179,13 @@ def resample(infile, outdir, target_resolution=60, filename=None):
 
     return f"{outdir}\\{file_name}"
 
-def resampling(indir, outdir, target_resolution=60, pattern= 'Top_soil_moisture'):
+def resampling(indir, outdir, source_resolution= 250, target_resolution= 60, pattern= 'Top_soil_moisture'):
 
     path = indir + "**/*.tif"
     #Use glob to find all TIFF files in subdirectories
     files = glob.glob(path, recursive=True)
 
-    if target_resolution != 30:
+    if target_resolution != source_resolution:
 
         tempdir = outdir + "temp"	    
         if not os.path.isdir(tempdir):

@@ -32,10 +32,15 @@ from openpyxl import load_workbook
 from pyproj import Proj, transform
 import warnings
 
-output_biomass = False
+output_biomass = True
 output_soil_moisture = True
-output_vegetation = False       # except NDVI, surface_temp
-output_evapotranspiration = False
+output_vegetation = True       # except NDVI, surface_temp
+output_evapotranspiration = True
+
+CALIBRATIONS = False
+CALIBRATED = True
+ALPHA = -0.089
+BETA = 0.343
 
 def SEBALcode(number,inputExcel):
   
@@ -683,8 +688,8 @@ def SEBALcode(number,inputExcel):
     water_mask_fileName = os.path.join(output_folder, 'Output_evapotranspiration', '%s_water_mask_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     #shadow_mask_fileName = os.path.join(output_folder, 'Output_cloud_masked', '%s_shadow_mask_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     Rn_24_fileName = os.path.join(output_folder, 'Output_evapotranspiration', '%s_Rn_24_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
-    #rn_inst_fileName = os.path.join(output_folder, 'Output_energy_balance', '%s_Rn_inst_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
-    #g_inst_fileName = os.path.join(output_folder, 'Output_energy_balance', '%s_G_inst_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
+    rn_inst_fileName = os.path.join(output_folder, 'Output_energy_balance', '%s_Rn_inst_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
+    g_inst_fileName = os.path.join(output_folder, 'Output_energy_balance', '%s_G_inst_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     temp_corr_fileName = os.path.join(output_folder, 'Output_vegetation', '%s_temp_corr_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     ts_dem_fileName = os.path.join(output_folder, 'Output_vegetation', '%s_ts_dem_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     #surf_rough_fileName = os.path.join(output_folder, 'Output_vegetation', '%s_surface_roughness_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
@@ -693,7 +698,7 @@ def SEBALcode(number,inputExcel):
     #h_inst_fileName = os.path.join(output_folder, 'Output_energy_balance', '%s_h_inst_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     #min_bulk_surf_res_fileName = os.path.join(output_folder, 'Output_evapotranspiration', '%s_%s_min_bulk_surf_resis_24_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     EF_inst_fileName = os.path.join(output_folder, 'Output_evapotranspiration', '%s_EFinst_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
-    #LE_inst_fileName = os.path.join(output_folder, 'Output_energy_balance', '%s_LEinst_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
+    LE_inst_fileName = os.path.join(output_folder, 'Output_energy_balance', '%s_LEinst_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     ETref_24_fileName = os.path.join(output_folder, 'Output_evapotranspiration', '%s_ETref_24_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     ETA_24_fileName = os.path.join(output_folder, 'Output_evapotranspiration', '%s_ETact_24_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
     ETP_24_fileName = os.path.join(output_folder, 'Output_evapotranspiration', '%s_ETpot_24_%s_%s_%s_%s_%s.tif' %(sensor1, res2, year, str(mon).zfill(2), str(day).zfill(2), str(DOY).zfill(3)))
@@ -2415,8 +2420,32 @@ def SEBALcode(number,inputExcel):
     # Instantaneous evapotranspiration
     LE_inst = rn_inst - g_inst - h_inst
     
-    # Evaporative fraction
-    EF_inst=Calc_instantaneous_ET_fraction(LE_inst,rn_inst,g_inst)
+    
+    if CALIBRATIONS:
+
+        EF_inst=Calc_instantaneous_ET_fraction_calibrations(LE_inst,rn_inst,g_inst, alpha=1, beta=0, status=False)
+        save_GeoTiff_proy(lsc, EF_inst, EF_inst_fileName, shape_lsc, nband=1)
+        save_GeoTiff_proy(lsc, rn_inst, rn_inst_fileName, shape_lsc, nband=1)
+        save_GeoTiff_proy(lsc, g_inst, g_inst_fileName, shape_lsc, nband=1)
+        save_GeoTiff_proy(lsc, LE_inst, LE_inst_fileName, shape_lsc, nband=1)
+
+    if CALIBRATED:
+        EF_inst, EF_inst_corrected=Calc_instantaneous_ET_fraction_calibrations(LE_inst,rn_inst,g_inst, alpha= ALPHA, beta=BETA, status=CALIBRATED)
+        # LE_inst = EF_inst_corrected * (rn_inst - g_inst)
+        ratio = np.where(np.isfinite(EF_inst) & (EF_inst != 0), EF_inst_corrected / EF_inst, np.nan)
+        LE_inst_corrected = LE_inst * ratio
+
+        EF_inst = EF_inst_corrected
+        LE_inst = LE_inst_corrected
+        
+        save_GeoTiff_proy(lsc, EF_inst, EF_inst_fileName, shape_lsc, nband=1)
+        save_GeoTiff_proy(lsc, rn_inst, rn_inst_fileName, shape_lsc, nband=1)
+        save_GeoTiff_proy(lsc, g_inst, g_inst_fileName, shape_lsc, nband=1)
+        save_GeoTiff_proy(lsc, LE_inst, LE_inst_fileName, shape_lsc, nband=1)
+    
+    else:
+        # Evaporative fraction
+        EF_inst=Calc_instantaneous_ET_fraction(LE_inst,rn_inst,g_inst)
     
     # Daily Evaporation and advection factor
     ETA_24, AF=Calc_ETact(esat_24,eact_24,EF_inst,Rn_24,Refl_rad_water,Lhv)
@@ -2775,6 +2804,20 @@ def Calc_instantaneous_ET_fraction(LE_inst,rn_inst,g_inst):
     EF_inst[LE_inst<0] = 0
 
     return(EF_inst)
+
+
+def Calc_instantaneous_ET_fraction_calibrations(LE_inst,rn_inst,g_inst, alpha, beta, status=False):   
+    """
+    Function to calculate the evaporative fraction
+    """ 
+    EF_inst = LE_inst / (rn_inst - g_inst)    # Evaporative fraction
+    
+    if status:
+        EF_inst_corrected = alpha * EF_inst + beta
+        EF_inst_corrected = EF_inst_corrected.clip(0.0, 1.8)
+    # EF_inst[LE_inst<0] = 0
+
+    return(EF_inst, EF_inst_corrected)
 
 #------------------------------------------------------------------------------
 def Calc_Ref_Pot_ET(LAI,Surface_temp,sl_es_24,Rn_ref,air_dens,esat_24,eact_24,rah_grass,Psychro_c,Rn_24,Refl_rad_water,rah_pm_pot,rl):

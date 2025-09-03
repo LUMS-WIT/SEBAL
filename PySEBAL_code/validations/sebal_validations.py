@@ -1,5 +1,5 @@
 import sys
-# sys.path.append('F:\SEBAL\PySEBAL_code')
+# sys.path.append('D:\SEBAL\PySEBAL_code')
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from osgeo import gdal
@@ -16,27 +16,27 @@ from util import *
 
 row_path = '150039'
 save_plot = False
-rescaling = False
+rescaling = True
 temporal_win = 0   # days for temporal matching
 pattern = "Top_soil_moisture"
 
 if row_path == '149039':
-    raster_file_path = r'F:\SEBAL\datasets\validation\LBDC_validations\149039\L9_Top_soil_moisture_30m_2023_06_23_174.tif'
+    raster_file_path = r'D:\SEBAL\datasets\validation\LBDC_validations\149039\L9_Top_soil_moisture_30m_2023_06_23_174.tif'
 elif row_path =='150039':
-    raster_file_path = r'F:\SEBAL\datasets\validation\LBDC_validations\150039\L9_Top_soil_moisture_30m_2023_09_18_261.tif'
-shapefile_path = fr'F:\SEBAL\datasets\validation\LBDC_validations\shapefiles\{row_path}_out_extent_1.shp'
+    raster_file_path = r'D:\SEBAL\datasets\validation\LBDC_validations\150039\L9_Top_soil_moisture_30m_2023_09_18_261.tif'
+shapefile_path = fr'D:\SEBAL\datasets\validation\LBDC_validations\shapefiles\{row_path}_out_extent_1.shp'
 
 
-wit_sms_path = 'F:\SEBAL\datasets\WIT_SM\SMS_final_v2'
-raster_folder_path = fr'F:/SEBAL/datasets/validation/LBDC_validations/{row_path}/'
+wit_sms_path = 'D:/SEBAL/datasets/witsms/processed/Nestle SMS/daily'
+raster_folder_path = fr'D:/SEBAL/datasets/validation/LBDC_validations/{row_path}/'
 
-metadata_file_path = fr'F:\SEBAL\datasets\validation\LBDC_validations\metadata_{row_path}_tw_{temporal_win}.xlsx'
+metadata_file_path = fr'D:\SEBAL\datasets\validation\LBDC_validations\metadata_{row_path}_tw_{temporal_win}.xlsx'
 if rescaling:
-    validation_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\validation_points_rescaled\{row_path}_{temporal_win}'
-    images_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\figs\{row_path}_rescaled'
+    validation_folder = fr'D:\SEBAL\datasets\validation\LBDC_validations\test\validation_points_rescaled\{row_path}_{temporal_win}'
+    images_folder = fr'D:\SEBAL\datasets\validation\LBDC_validations\figs\{row_path}_rescaled'
 else:
-    validation_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\validation_points\{row_path}_{temporal_win}'
-    images_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\figs\{row_path}'
+    validation_folder = fr'D:\SEBAL\datasets\validation\LBDC_validations\test\validation_points\{row_path}_{temporal_win}'
+    images_folder = fr'D:\SEBAL\datasets\validation\LBDC_validations\figs\{row_path}'
 
 # ----------------------------------------------------------------------
 # Plotting Logic
@@ -668,24 +668,24 @@ def find_data_within_extent(metadata, raster_file_path):
 
 
 '''
-# Example usage
-#lat, lon = 30.676265,73.151078
-lat, lon = float(data_within_extent[-1]['latitude']), float(data_within_extent[-1]['longitude'])              # Plotting step 3.a
+# # Example usage
+# #lat, lon = 30.676265,73.151078
+# lat, lon = float(data_within_extent[-1]['latitude']), float(data_within_extent[-1]['longitude'])              # Plotting step 3.a
 
-csv_dates, csv_values = soil_moisture_data.get_soil_moisture_by_location(lat, lon)  # Replace '123456' with actual GPI
+# csv_dates, csv_values = soil_moisture_data.get_soil_moisture_by_location(lat, lon)  # Replace '123456' with actual GPI
 
-# latitude = 30.3283
-# longitude = 73.1475
-# value = read_raster_value(raster_file_path, latitude, longitude)
-# print("Value at location:", value)
+# # latitude = 30.3283
+# # longitude = 73.1475
+# # value = read_raster_value(raster_file_path, latitude, longitude)
+# # print("Value at location:", value)
 
-raster_dates, raster_values = read_raster_folder(raster_folder_path, lat, lon)                          # plotting step 3.b
+# raster_dates, raster_values = read_raster_folder(raster_folder_path, lat, lon)                          # plotting step 3.b
 
-#print(raster_dates, raster_values)
-print('Total Count of sebal values:', len(raster_values))
+# #print(raster_dates, raster_values)
+# print('Total Count of sebal values:', len(raster_values))
 
-nan_count = np.sum(np.isnan(raster_values))
-print('Sebal Data with NaN values:', nan_count)
+# nan_count = np.sum(np.isnan(raster_values))
+# print('Sebal Data with NaN values:', nan_count)
 '''
 
 '''

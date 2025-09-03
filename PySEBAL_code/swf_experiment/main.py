@@ -15,7 +15,7 @@ from validations.scaling import scaling
 
 # pattern = 'Top_soil_moisture'
 # # pattern = 'Root_zone_moisture'
-# spatial_res = 350
+# spatial_res = 250
 # # # convert crs
 # # print('\n------- Converting CRS to WGS84 EPSG 4326 --------')
 # input_path = r'D:\SEBAL\datasets\SEBAL_out\swf\\'
@@ -24,7 +24,7 @@ from validations.scaling import scaling
 # if not os.path.isdir(output_path):
 #     os.makedirs(output_path)
 
-# resampling(input_path, output_path, target_resolution= spatial_res, pattern=pattern)
+# resampling(input_path, output_path, source_resolution= 250, target_resolution= spatial_res, pattern=pattern)
 
 # exit()
 
@@ -116,17 +116,17 @@ plt.show()
 
 exit()
 '''
-'''
+
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------   Single resolution with sms data overlay  -----------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
-
-scaling_ = False
+'''
+scaling_ = True
 pattern = 'Top_soil_moisture'
 # pattern = 'Root_zone_moisture'
-spatial_res = 90
+spatial_res = 250
 sms_id = 0
 
 # # convert crs
@@ -166,7 +166,8 @@ mustard_sms = {
 
 raster_data = SebalSoilMoistureData(output_path)
 
-wit_sms_path = 'D:\SEBAL\datasets\witsms\processed\SWF SMS\daily'
+wit_sms_path = 'D:\SEBAL\datasets\witsms\processed\SWF SMS\daily_full'
+# wit_sms_path = 'D:\SEBAL\datasets\witsms\processed\SWF SMS\\tri_hourly'
 soil_moisture_data = SoilMoistureData(wit_sms_path)
 soil_moisture_data.read_data()
 metadata = soil_moisture_data.get_metadata()
@@ -192,12 +193,11 @@ if scaling_:
     csv_dates, csv_values = ref_data
     raster_dates, raster_values = test_data
 
-
 # Plot CSV data
-plt.plot(csv_dates, csv_values, marker='o', linestyle='-', color='b', label='WIT-SMS')
+plt.plot(csv_dates, csv_values, marker='o', linestyle='None', color='b', label='WIT-SMS')
 
 # Plot Raster data
-plt.plot(raster_dates, raster_values, marker='x', linestyle='--', color='r', label=f'Sebal Soil Moisture {spatial_res}m')
+plt.plot(raster_dates, raster_values, marker='x', linestyle='None', color='r', label=f'Sebal Soil Moisture {spatial_res}m')
 
 plt.title(f'Top Soil Moisture Time Series Comparison Latitude: {lat}, Longitude: {lon}')
 plt.xlabel('Date')
@@ -308,7 +308,6 @@ plt.tight_layout()
 plt.show()
 ''' 
 
-'''
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------   Single sebal/sms plots data for wheat feild  -----------------------------------------
@@ -319,7 +318,7 @@ pattern = 'Top_soil_moisture'
 # pattern = 'Root_zone_moisture'
 spatial_res = 30
 sms_id = 4
-scaling_ = False
+scaling_ = True
 # # convert crs
 # print('\n------- Converting CRS to WGS84 EPSG 4326 --------')
 input_path = r'D:\SEBAL\datasets\SEBAL_out\swf\\'
@@ -365,9 +364,9 @@ if scaling_:
 plt.figure(figsize=(10, 5))
 #plt.plot(dates, values, 'o')
 # Plot CSV data
-# plt.plot(csv_dates, csv_values, marker='o', linestyle='-', color='purple', label='WIT-SMS')
+plt.plot(csv_dates, csv_values, marker='o', linestyle='-', color='purple', label='WIT-SMS')
 
-plt.plot(raster_dates, raster_values, marker='x', linestyle='--', color='r', label=pattern)
+plt.plot(raster_dates, raster_values, marker='x', linestyle='None', color='r', label=pattern)
 # plt.title(f'{pattern} Over Time')
 plt.xlabel('Date')
 plt.ylabel('Soil Moisture Value (m3/m3)')
@@ -382,18 +381,19 @@ plt.gca().tick_params(axis='x', labelsize=8)  # Setting the font size to 8
 plt.legend()
 plt.tight_layout()
 plt.show()
-'''
+exit()
 
+'''
 # --------------------------------------------------------------------------
 # ---------------   Save csv file  -----------------------------------------
 # --------------------------------------------------------------------------
 
 
-scaling_ = True
+scaling_ = False
 pattern = 'Top_soil_moisture'
 sms_id = 4
-spatial_ress = [30, 60, 90, 120, 150, 180, 200, 220, 250, 300, 350, 400, 500, 1000, 5000]
-
+# spatial_ress = [30, 60, 90, 120, 150, 180, 200, 220, 250, 300, 350, 400, 500, 1000, 5000]
+spatial_ress = [250]
 wit_sms_path = r'D:\SEBAL\datasets\witsms\processed\SWF SMS\daily'
 soil_moisture_data = SoilMoistureData(wit_sms_path)
 soil_moisture_data.read_data()
@@ -449,3 +449,299 @@ for _metadata in metadata:
             writer.writerow(row)
 
     print(f"CSV file saved: {csv_filepath}")
+
+'''
+# ---------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------
+# ---------------   All SMS plots  and one sebal data for wheat feild  ------------------------------
+# ---------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------
+'''
+pattern = 'Top_soil_moisture'
+# pattern = 'Root_zone_moisture'
+spatial_res = 250
+sms_id = 4
+scaling_= True
+
+# # convert crs
+# print('\n------- Converting CRS to WGS84 EPSG 4326 --------')
+input_path = r'D:\SEBAL\datasets\SEBAL_out\swf\\'
+output_path = f'D:\SEBAL\datasets\SEBAL_out\swf_sm_{spatial_res}m\{pattern}\\'
+raster_data = SebalSoilMoistureData(output_path)
+
+wit_sms_path = 'D:\SEBAL\datasets\witsms\processed\SWF SMS\daily'
+soil_moisture_data = SoilMoistureData(wit_sms_path)
+soil_moisture_data.read_data()
+metadata = soil_moisture_data.get_metadata()
+
+# Plotting of sms data
+soil_moisture_data = SoilMoistureData(wit_sms_path)
+soil_moisture_data.read_data()
+metadata = soil_moisture_data.get_metadata()
+
+for _metadata in metadata:
+
+    lat, lon = float(_metadata['latitude']), float(_metadata['longitude'])
+    csv_dates, csv_values = soil_moisture_data.get_soil_moisture_by_location(lat, lon)
+    csv_dates, csv_values = remove_nan_entries(csv_dates, csv_values)
+    plt.plot(csv_dates, csv_values, marker='x', linestyle='--', label=_metadata['gpi'])
+
+raster_dates, raster_values = raster_data.get_data(lat, lon)
+raster_dates, raster_values = remove_nan_entries(raster_dates, raster_values)
+
+if scaling_:
+    # Data statistical re-scaling
+    ref_data = (csv_dates, csv_values)  # Reference data from CSV files
+    test_data = (raster_dates, raster_values)  # Test data from raster files
+    test_data, _ = scaling(test_data, ref_data)
+    csv_dates, csv_values = ref_data
+    raster_dates, raster_values = test_data
+
+plt.plot(raster_dates, raster_values, marker='o', linestyle='None', color='r', label=pattern)
+# Configure the plot
+plt.xlabel('Date')
+plt.ylabel('Soil Moisture Value (m3/m3)')
+
+# Configure date format on x-axis
+
+plt.gca().set_xticks(csv_dates)
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+plt.gcf().autofmt_xdate(rotation=90)  # Auto formats the x-axis labels to fit them in the plot area
+plt.gca().tick_params(axis='x', labelsize=8)  # Setting the font size to 8
+
+# Add a legend and finalize the plot
+plt.legend()
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+'''
+
+# ---------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
+# ---------------   SMAP w/ 1 sms data overlay  -----------------------------------------
+# ---------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
+'''
+scaling_ = False
+spatial_res = '3km'
+pattern = f'_074E31N_R19240_001_Soil_Moisture_Retrieval_Data_{spatial_res}_soil_moisture_{spatial_res}_'
+# pattern = f'Soil_Moisture_Retrieval_Data_{spatial_res}_soil_moisture_{spatial_res}_'
+
+sms_id = 0
+
+# # convert crs
+# print('\n------- Converting CRS to WGS84 EPSG 4326 --------')
+input_path = r'D:\SEBAL\datasets\SEBAL_out\swf\\'
+output_path = f'D:\SEBAL\datasets\SMAP\swf_sm_{spatial_res}\\'
+
+# if not os.path.isdir(output_path):
+#     os.makedirs(output_path)
+
+# resampling(input_path, output_path, target_resolution= spatial_res, pattern=pattern)
+
+
+poly_11_0 =	31.078510, 74.165753
+poly_11_1 = 31.078504, 74.167007
+poly_11_2 =	31.079568, 74.166973
+poly_11_3 = 31.079576, 74.165727
+poly_11_4 = 31.078981, 74.166425
+poly_12_0 =	31.074229, 74.177412
+poly_12_4 =	31.074693, 74.177997
+
+# wheat_sms = [poly_11_0, poly_11_1, poly_11_2, poly_11_3, poly_11_4]
+# mustard_sms = [poly_12_0, poly_12_4]
+
+wheat_sms = {
+    'poly_11_0': poly_11_0,
+    'poly_11_1': poly_11_1,
+    'poly_11_2': poly_11_2,
+    'poly_11_3': poly_11_3,
+    'poly_11_4': poly_11_4
+}
+
+mustard_sms = {
+    'poly_12_0': poly_12_0,
+    'poly_12_4': poly_12_4
+}
+
+raster_data = SebalSoilMoistureData(output_path, pattern)
+
+wit_sms_path = 'D:\SEBAL\datasets\witsms\processed\SWF SMS\daily_full'
+# wit_sms_path = 'D:\SEBAL\datasets\witsms\processed\SWF SMS\\tri_hourly'
+soil_moisture_data = SoilMoistureData(wit_sms_path)
+soil_moisture_data.read_data()
+metadata = soil_moisture_data.get_metadata()
+
+# Initialize the figures
+plt.figure(figsize=(10, 5))
+
+# lat, lon = poly_11_1
+_metadata = metadata[sms_id]
+lat, lon = float(_metadata['latitude']), float(_metadata['longitude'])
+
+raster_dates, raster_values = raster_data.get_data(lat, lon)
+csv_dates, csv_values = soil_moisture_data.get_soil_moisture_by_location(lat, lon)
+
+raster_dates, raster_values = remove_nan_entries(raster_dates, raster_values)
+csv_dates, csv_values = remove_nan_entries(csv_dates, csv_values)
+
+if scaling_:
+    # Data statistical re-scaling
+    ref_data = (csv_dates, csv_values)  # Reference data from CSV files
+    test_data = (raster_dates, raster_values)  # Test data from raster files
+    test_data, _ = scaling(test_data, ref_data)
+    csv_dates, csv_values = ref_data
+    raster_dates, raster_values = test_data
+
+# Plot CSV data
+# plt.plot(csv_dates, csv_values, marker='o', linestyle='-', color='b', label='WIT-SMS')
+
+# Plot Raster data
+plt.plot(raster_dates, raster_values, marker='x', linestyle='None', color='r', label=f'SMAP Soil Moisture {spatial_res}')
+
+plt.title(f'Top Soil Moisture Time Series Comparison Latitude: {lat}, Longitude: {lon}')
+plt.xlabel('Date')
+plt.ylabel('Soil Moisture (m3/m3)')
+
+# Formatting the date on the x-axis
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
+plt.gcf().autofmt_xdate()  # Auto formats the x-axis labels to fit them in the plot area
+
+plt.legend()
+plt.grid(True)
+plt.show()
+exit()
+'''
+
+
+# --------------------------------------------------------------------------
+# ---------------   SMAP csv file  -----------------------------------------
+# --------------------------------------------------------------------------
+'''
+
+scaling_ = True
+spatial_res = '3km'
+pattern = f'Soil_Moisture_Retrieval_Data_{spatial_res}_soil_moisture_{spatial_res}_'
+
+sms_id = 0
+
+output_path = f'D:\SEBAL\datasets\SMAP\swf_sm_{spatial_res}\\'
+
+
+# spatial_ress = [30, 60, 90, 120, 150, 180, 200, 220, 250, 300, 350, 400, 500, 1000, 5000]
+spatial_ress = [spatial_res]
+wit_sms_path = r'D:\SEBAL\datasets\witsms\processed\SWF SMS\daily'
+soil_moisture_data = SoilMoistureData(wit_sms_path)
+soil_moisture_data.read_data()
+metadata = soil_moisture_data.get_metadata()
+
+for _metadata in metadata:
+    lat, lon, gpi = float(_metadata['latitude']), float(_metadata['longitude']), str(_metadata['gpi'])
+
+    # Initialize a dictionary to store all data for this location
+    data_for_csv = {'TimeStamp': None}
+
+    for spatial_res in spatial_ress:
+        
+        output_path = f'D:\SEBAL\datasets\SMAP\swf_sm_{spatial_res}\\'
+        csv_save_path = r'D:\SEBAL\datasets\SEBAL_out\\csv'
+
+        raster_data = SebalSoilMoistureData(output_path, pattern)
+
+        raster_dates, raster_values = raster_data.get_data(lat, lon)
+        csv_dates, csv_values = soil_moisture_data.get_soil_moisture_by_location(lat, lon)
+
+        raster_dates, raster_values = remove_nan_entries(raster_dates, raster_values)
+        csv_dates, csv_values = remove_nan_entries(csv_dates, csv_values)
+
+        if scaling_:
+            # Data statistical re-scaling
+            ref_data = (csv_dates, csv_values)  # Reference data from CSV files
+            test_data = (raster_dates, raster_values)  # Test data from raster files
+            test_data, _ = scaling(test_data, ref_data)
+            csv_dates, csv_values = ref_data
+            raster_dates, raster_values = test_data
+
+        # Ensure that TimeStamps are stored only once
+        if data_for_csv['TimeStamp'] is None:
+            data_for_csv['TimeStamp'] = raster_dates
+
+        # Add the raster values for the current spatial resolution to the dictionary
+        data_for_csv[f'{spatial_res}'] = [round(value, 4) for value in raster_values]
+
+    # Define the CSV file name
+    if scaling_:
+        csv_filename = f"smap_gpi={gpi}_lat={lat}_lon={lon}.csv"
+        csv_filepath = os.path.join(csv_save_path, csv_filename)
+    else:
+        csv_filename = f"smap_unscaled.csv"
+        csv_filepath = os.path.join(csv_save_path, csv_filename)        
+
+    # Write the dictionary data to a CSV file
+    with open(csv_filepath, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        # Write the header
+        writer.writerow(['TimeStamp'] + [f'{res}m' for res in spatial_ress])
+        # Write the data rows
+        for i in range(len(data_for_csv['TimeStamp'])):
+            row = [data_for_csv['TimeStamp'][i]] + [data_for_csv[f'{res}'][i] for res in spatial_ress]
+            writer.writerow(row)
+
+    print(f"CSV file saved: {csv_filepath}")
+'''
+
+# --------------------------------------------------------------------------
+# ---------------   MODIS Resampled ----------------------------------------
+# --------------------------------------------------------------------------
+import pandas as pd
+
+scaling_ = True
+spatial_res = '250m'
+# Reload the CSV file to ensure all data is correctly loaded
+file_path = 'D:\SEBAL\datasets\SEBAL_out\csv\\combined_averaged_sensors_modis_data.csv'
+data = pd.read_csv(file_path)
+
+# Convert 'dates' to datetime if necessary (ensure the date format matches your data)
+data['dates'] = pd.to_datetime(data['dates'], format='%Y-%m-%d')  # Adjust format as necessary
+
+# Drop rows where 'MODIS' is NaN for the MODIS data set
+modis_filtered_data = data.dropna(subset=['MODIS'])
+modis_dates = modis_filtered_data['dates'].tolist()  # Convert dates to list
+# modis_dates = modis_filtered_data['dates'].dt.to_pydatetime()
+modis_data = modis_filtered_data['MODIS'].values
+
+# Drop rows where 'w_average' is NaN for the weighted average data set
+w_average_filtered_data = data.dropna(subset=['w_average'])
+# w_average_dates = w_average_filtered_data['dates'].dt.to_pydatetime()
+w_average_dates = w_average_filtered_data['dates'].tolist() 
+w_average_data = w_average_filtered_data['w_average'].values
+
+if scaling_:
+    # Data statistical re-scaling
+    ref_data = (w_average_dates, w_average_data)  # Reference data from CSV files
+    test_data = (modis_dates, modis_data)  # Test data from raster files
+    test_data, _ = scaling(test_data, ref_data)
+    csv_dates, csv_values = ref_data
+    raster_dates, raster_values = test_data
+
+# Plot CSV data
+plt.plot(csv_dates, csv_values, marker='x', linestyle='None', color='r', label='Weighted Average of Sensors')
+
+# Plot Raster data
+plt.plot(raster_dates, raster_values, marker='o', linestyle='None', color='b', label=f'MODIS Soil Moisture {spatial_res}')
+
+plt.title(f'Comparison of Scaled MODIS Data and Weighted Average of Sensor Data')
+plt.xlabel('Date')
+plt.ylabel('Soil Moisture (m3/m3)')
+
+# Formatting the date on the x-axis
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
+plt.gcf().autofmt_xdate()  # Auto formats the x-axis labels to fit them in the plot area
+
+plt.legend()
+plt.grid(True)
+plt.show()
+exit()

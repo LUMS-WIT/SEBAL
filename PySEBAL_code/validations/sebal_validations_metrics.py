@@ -7,16 +7,16 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Define the path to your Excel file
-path_row = '150039'
+path_row = '149039'
 temporal_win = '0'
-rescaled = False
-combine_validations = True
+rescaled = True
+combine_validations = False
 plotting = False
 
 if rescaled:
-    master_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\validation_points_rescaled' 
-    data_folder = fr'F:\SEBAL\datasets\validation\LBDC_validations\validation_points_rescaled\{path_row}_{temporal_win}'
-    output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\validations_{path_row}_tw_{temporal_win}_rescaled.xlsx'
+    master_folder = fr'D:\SEBAL\datasets\validation\LBDC_validations\validation_points_rescaled' 
+    data_folder = fr'D:\SEBAL\datasets\validation\LBDC_validations\validation_points_rescaled\{path_row}_{temporal_win}'
+    output_file = fr'D:\SEBAL\datasets\validation\LBDC_validations\results\extras\validations_{path_row}_tw_{temporal_win}_rescaled.xlsx'
     combine_output_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\validations_tw_{temporal_win}_rescaled.xlsx'
 
     plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\{path_row}_tw_{temporal_win}_rescaled.png'
@@ -30,7 +30,7 @@ else:
     plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\{path_row}_tw_{temporal_win}.png'
     combine_plot_file_output = fr'F:\SEBAL\datasets\validation\LBDC_validations\results\extras\tw_{temporal_win}.png'
 
-metadata_file = fr'F:\SEBAL\datasets\validation\LBDC_validations\metadata_{path_row}_tw_{temporal_win}.xlsx'
+metadata_file = fr'D:\SEBAL\datasets\validation\LBDC_validations\metadata_{path_row}_tw_{temporal_win}.xlsx'
 xlsx_file_path = r'F:\SEBAL\datasets\validation\LBDC_validations\validation_points\149039_1\sebal_149039_witgpi_2021073_lat_30.898787_lon_73.4677055.xlsx'
 
 def extract_sm_data(xlsx_file_path,ref=1, test=2):

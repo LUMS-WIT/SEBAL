@@ -4,8 +4,8 @@ import cartopy.feature as cfeature
 import matplotlib.colors as cl
 import pandas as pd
 
-file_path = 'F:\SEBAL\datasets/validation\LBDC_validations/results/validations_149039_tw_0_rescaled.xlsx'
-file_path1 = 'F:\SEBAL\datasets/validation\LBDC_validations/results/validations_150039_tw_0_rescaled.xlsx'
+file_path = 'D:\SEBAL\datasets/validation\LBDC_validations/results/validations_149039_tw_0_rescaled.xlsx'
+file_path1 = 'D:\SEBAL\datasets/validation\LBDC_validations/results/validations_150039_tw_0_rescaled.xlsx'
 
 
 extent = [69.2, 75.0, 27.6, 34.0]  # Set the map extent to Punjab, Pakistan

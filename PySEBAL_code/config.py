@@ -3,7 +3,10 @@
 #------------------------------------------
 
 shapefile_swf = 'D:\SEBAL\datasets\shapefiles\SWF\swf.shp'
-SHAPEFILE = shapefile_swf
+shapefile_usris = rf'D:\SEBAL\datasets\dem\calibrations\US-RIs\shapefile\US-RIs-2.shp'
+shapefile_usrc = rf'D:\SEBAL\datasets\dem\calibrations\US-Src\shapefile\US-Src.shp'
+
+SHAPEFILE = shapefile_usrc
 
 #------------------------------------------
 #------------- Landsat 8/9 ----------------
@@ -33,7 +36,8 @@ BULK_PROCESSING = True
 #------------------------------------------
 
 SOIL_INDIR = "D:\SEBAL\datasets\soil\HiHydroSoil_250m\Top_Subsoil\\"
-SOIL_OUTDIR = "D:\SEBAL\datasets\soil\\"
+# SOIL_OUTDIR = "D:\SEBAL\datasets\soil\\"
+SOIL_OUTDIR = "D:\SEBAL\datasets\soil\calibrations\Src\\"
 
 #------------------------------------------
 #------------- Excel Helper ---------------

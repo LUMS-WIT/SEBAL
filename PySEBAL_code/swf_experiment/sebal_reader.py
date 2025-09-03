@@ -117,7 +117,11 @@ class SebalSoilMoistureData:
         if value is None or np.isnan(value).all():
             return np.nan
         else:
-            return value[0, 0]
+            value = value[0, 0]
+            if value < 0:
+                return np.nan
+            else:
+                return value
 
     def read_data(self, lat=None, lon=None):
         """
@@ -145,8 +149,22 @@ class SebalSoilMoistureData:
                     file_path = os.path.join(root, filename)
                     # Extract date from filename
                     parts = filename.split('_')
-                    date_str = f"{parts[-4]}_{parts[-3]}_{parts[-2]}"  # Assumes date is in the format {year}_{month}_{day}
-                    date = datetime.datetime.strptime(date_str, '%Y_%m_%d')
+                    
+                    # for SMAP  
+                    # ['SMAP', 'L2', 'SM', 'SP', '1AIWDV', '20231208T012104', '20231208T010012', 
+                    # '074E30N', 'R19240', '001', 'Soil', 'Moisture', 'Retrieval', 'Data', '1km', 'soil', 
+                    # 'moisture', '1km', '8258b1ab.tif']
+                    if 'SMAP' in parts:
+                        date_str = parts[5][:8]
+                        date = datetime.datetime.strptime(date_str, '%Y%m%d')
+                    else:
+                        date_str = f"{parts[-4]}_{parts[-3]}_{parts[-2]}" 
+                        try:
+                            # Assumes date is in the format {year}_{month}_{day} 
+                            date = datetime.datetime.strptime(date_str, '%Y_%m_%d')
+                        except:
+                            # Assumes date is in the format {year}_{month}_{DOY}                        
+                            date = datetime.datetime.strptime(date_str, '%Y_%m_%j')
                     # Read the raster value
                     value = self.read_raster_value(file_path, lat, lon)
                     values.append(value)

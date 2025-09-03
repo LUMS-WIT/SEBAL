@@ -118,16 +118,21 @@ class SoilMoistureData:
                 plt.legend()
                 plt.show()
 
-
+'''
 # Example usage:
 
-# wit_sms_path = 'D:\SEBAL\datasets\witsms\processed\SWF SMS\daily'
-# soil_moisture_data = SoilMoistureData(wit_sms_path)
-# soil_moisture_data.read_data()
+wit_sms_path = r'D:\SEBAL\datasets\witsms\\processed\\Nestle SMS\daily'
+soil_moisture_data = SoilMoistureData(wit_sms_path)
+soil_moisture_data.read_data()
 # soil_moisture_data.print_metadata()  # Print metadata in CSV format
 
-# #soil_moisture_data.save_metadata_to_csv()  # Save metadata to a CSV file
+#soil_moisture_data.save_metadata_to_csv()  # Save metadata to a CSV file
 
 
-# # Plotting data for a specific GPI
+# Plotting data for a specific GPI
 # soil_moisture_data.plot_data_gpi()
+lat, lon = 30.6916240, 73.7100170
+csv_dates, csv_values = soil_moisture_data.get_soil_moisture_by_location(lat, lon)
+plt.plot(csv_dates, csv_values, marker='o', linestyle='-', color='b', label='WIT-SMS')
+plt.show()
+'''
