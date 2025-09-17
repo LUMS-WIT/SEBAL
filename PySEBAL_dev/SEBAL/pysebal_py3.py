@@ -31,10 +31,11 @@ import numpy.polynomial.polynomial as poly
 from openpyxl import load_workbook
 from pyproj import Proj, transform
 import warnings
+import glob
 
-output_biomass = True
+output_biomass = False
 output_soil_moisture = True
-output_vegetation = True       # except NDVI, surface_temp
+output_vegetation = False       # except NDVI, surface_temp
 output_evapotranspiration = True
 
 CALIBRATIONS = False
@@ -2438,10 +2439,10 @@ def SEBALcode(number,inputExcel):
         EF_inst = EF_inst_corrected
         LE_inst = LE_inst_corrected
         
-        save_GeoTiff_proy(lsc, EF_inst, EF_inst_fileName, shape_lsc, nband=1)
-        save_GeoTiff_proy(lsc, rn_inst, rn_inst_fileName, shape_lsc, nband=1)
-        save_GeoTiff_proy(lsc, g_inst, g_inst_fileName, shape_lsc, nband=1)
-        save_GeoTiff_proy(lsc, LE_inst, LE_inst_fileName, shape_lsc, nband=1)
+        # save_GeoTiff_proy(lsc, EF_inst, EF_inst_fileName, shape_lsc, nband=1)
+        # save_GeoTiff_proy(lsc, rn_inst, rn_inst_fileName, shape_lsc, nband=1)
+        # save_GeoTiff_proy(lsc, g_inst, g_inst_fileName, shape_lsc, nband=1)
+        # save_GeoTiff_proy(lsc, LE_inst, LE_inst_fileName, shape_lsc, nband=1)
     
     else:
         # Evaporative fraction
@@ -2489,10 +2490,12 @@ def SEBALcode(number,inputExcel):
     
     if output_evapotranspiration:
         # Save files
-        save_GeoTiff_proy(lsc, Tact_24, Tact24_fileName,shape_lsc, nband=1)
-        save_GeoTiff_proy(lsc, Eact_24, Eact24_fileName,shape_lsc, nband=1)                  
-        save_GeoTiff_proy(lsc, Tpot_24, Tpot24_fileName,shape_lsc, nband=1)                 
-        save_GeoTiff_proy(lsc, T24_deficit, T24_deficit_fileName,shape_lsc, nband=1)  
+        # All turned ON orginally 
+        # save_GeoTiff_proy(lsc, Tact_24, Tact24_fileName,shape_lsc, nband=1)
+        # save_GeoTiff_proy(lsc, Eact_24, Eact24_fileName,shape_lsc, nband=1)                  
+        # save_GeoTiff_proy(lsc, Tpot_24, Tpot24_fileName,shape_lsc, nband=1)                 
+        # save_GeoTiff_proy(lsc, T24_deficit, T24_deficit_fileName,shape_lsc, nband=1)
+        print()  
     #
     if output_soil_moisture:               
         #save_GeoTiff_proy(lsc, total_soil_moisture, total_soil_moisture_fileName,shape_lsc, nband=1)
@@ -2523,6 +2526,26 @@ def SEBALcode(number,inputExcel):
         shutil.rmtree(os.path.join(output_folder, 'Output_temporary'))
         shutil.rmtree(os.path.join(output_folder, 'Output_radiation_balance'))
         shutil.rmtree(os.path.join(output_folder, 'Output_cloud_masked'))
+    except OSError as e:
+        print ('Error: folder does not exist')
+
+    print ('---------------------------------------------------------')
+    print ('---------------- Saving Disk Space  ---------------------')
+    print ('---------------------------------------------------------')
+    
+    try:
+        shutil.rmtree(os.path.join(output_folder, 'Output_vegetation'))
+
+        target_folder = os.path.join(output_folder, "Output_evapotranspiration")
+
+        # Find all files in the folder
+        all_files = glob.glob(os.path.join(target_folder, "*"))
+
+        for file in all_files:
+            # Remove file if it does NOT contain "EF"
+            if "ET" not in os.path.basename(file):
+                os.remove(file)
+        
     except OSError as e:
         print ('Error: folder does not exist')
 
